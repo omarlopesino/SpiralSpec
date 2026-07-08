@@ -42,6 +42,8 @@ Recorded decisions from the brainstorming session:
 | D8 | Whole-plan re-evaluation | Not in MVP. Coherence checking is distributed (plan challenges solution; verify checks work against criteria). | Standing audit commands invite ritual token burn. May be added later (e.g. `plan --audit`) if drift proves painful in practice. |
 | D9 | Skill updates | Idempotent installer with checksum manifest | Re-running install/update refreshes managed files; hand-edited managed files are warn-and-skip; user-authored workflows are never touched. |
 | D10 | Sub-agent reports | Sub-agents never write status reports; the orchestrator does | A fresh-context reporter plus the "write for a reader who wasn't here" rule counters context contamination. |
+| D11 | Incremental planning ledger | Plan drafts `backlog.md` (one line per proposed task) for user verification BEFORE expanding any entry into a full task file | Enables partial planning: the user can approve/implement one task now and continue analysis later — the agent resumes from the ledger instead of re-inferring the whole breakdown. |
+| D12 | Full-circle refinement | A sixth verb, `/spiral:refine`, processes post-plan feedback: reshapes the ledger, edits/deletes not-started tasks, edits `inprogress` tasks (recorded as a new `# Iterations` entry), and — with user consent — acceptance-criteria.md and context.md | Plans and specs must be revisable between planning and implementation, not just at verification. Tasks in `verification`+ still go through verify's impact-bounded flow. |
 
 ## 4. Architecture
 
@@ -55,7 +57,8 @@ spiralspec (npm, TypeScript, LGPL-3.0, open source)
 │   │                                              install/update skill pack
 │   ├─ spiralspec new <spec-name>                  scaffold one spec folder with empty artifacts
 │   ├─ spiralspec validate <spec>                  frontmatter schema, ground-cycle detection,
-│   │                                              scope-claim overlap detection
+│   │                                              scope-claim overlap detection, backlog↔tasks
+│   │                                              ledger consistency (D11)
 │   ├─ spiralspec status <spec> [--json]           whole-spec state: tasks × statuses × blockers
 │   ├─ spiralspec next <spec> [--json]             runnable set: status todo/inprogress, deps met,
 │   │                                              scope disjoint from all inprogress tasks
@@ -93,6 +96,7 @@ specs/                          ← root, configurable in .spiralspec.yml (D4)
    ├─ context.md                why the work exists (human-written; carries spec frontmatter)
    ├─ acceptance-criteria.md    functional + technical criteria (human-written; D7)
    ├─ solution.md               approach + references to code/docs (human-written, AI-challenged)
+   ├─ backlog.md                 planning ledger: proposed tasks, one line each (AI-drafted, user-verified; D11)
    ├─ tasks/
    │  └─ <task-slug>.md         one file per task (AI-scaffolded at plan time)
    ├─ status/
@@ -118,6 +122,23 @@ Spec-level status is **derived, never stored**: the CLI computes the phase from 
 - `context.md` — description, context, motivation. Explains why the work is needed.
 - `acceptance-criteria.md` — two sections. **Functional criteria**: what must work for the spec to be complete (verified by the human). **Technical criteria**: technical restrictions (evaluated by the AI).
 - `solution.md` — the intended solution, with references to code, documentation, and any material the AI needs. The plan skill challenges it for contradictions, better alternatives, and refinement — but the human owns it.
+
+### backlog.md — the planning ledger (D11)
+
+Drafted by the plan skill BEFORE any task file is written; verified and edited by the user. One line per proposed task:
+
+```markdown
+# Backlog
+
+- [x] create-field-map — Infer old→new field mappings with explicit overrides
+- [ ] migrate-users — Run the user migration end to end (ground: create-field-map)
+```
+
+- `[ ]` = proposed, not yet expanded into a task file; `[x]` = expanded (tasks/<slug>.md exists).
+- The user verifies this cheap inventory first; only verified entries get expanded into full task files — lazily. "Expand and implement create-field-map now, leave the rest for later" is a normal flow.
+- When planning resumes in a later session, the agent reads `backlog.md` to know what remains — it never re-infers the breakdown from scratch.
+- **The ledger is living, not create-once.** It is updated at every phase: plan flips `[ ]`→`[x]` on expansion; plan re-runs append newly discovered tasks (user-verified per the autonomy dial); verification feedback appends rework/new tasks or removes discarded ideas with user consent. But it tracks ONLY the inventory (proposed vs expanded) — never task statuses, which live in task frontmatter and are derived by the CLI. Duplicating status here would create a stored aggregate that goes stale.
+- `spiralspec validate` enforces ledger/files consistency when the ledger has entries: a task file's slug must appear as a checked entry, and a checked entry must have a task file. A `backlog.md` with no entries imposes no constraints (brownfield specs and pre-plan states stay valid).
 
 ### Task frontmatter
 
@@ -177,12 +198,31 @@ Written by the orchestrator (never by task sub-agents, D10), under the rule: *wr
 
 ## 6. Skills and Phase Mapping
 
-Five verbs are the entire surface. Phases are states of the artifacts, not separate tools.
+Six verbs are the entire surface. Phases are states of the artifacts, not separate tools.
+
+### Verb ordering — a partial order, not a pipeline
+
+Only `define → plan` is strictly sequential. Everything after is a lattice, evaluated **per task**, not per spec:
+
+```mermaid
+graph LR
+  define --> plan
+  plan --> refine
+  plan --> implement
+  refine <--> implement
+  implement --> verify
+  verify --> release
+```
+
+- `implement` and `refine` both require a plan to exist, then interleave freely: refine the ledger while other tasks build, edit an inprogress task (new iteration), implement one task while another awaits expansion.
+- `verify` and `release` follow `implement` per task — one task can be in verification while its siblings are still being implemented or refined.
+- The task-status machine enforces most of this mechanically: each verb only acts on the statuses it owns (implement: `todo`/`inprogress`; verify: `verification`; release: `release`), so calling a verb "too early" degrades to a no-op with an explanation, never a broken state.
 
 | Skill | Phases covered | Behavior |
 |---|---|---|
 | `/spiral:define <name>` | Definition | Runs `spiralspec new`; assists the user (interview, paste from issue, draft prose) in filling context.md, acceptance-criteria.md, solution.md. The user owns the content. |
-| `/spiral:plan <spec>` | Plan, Plan review | Reads the three human artifacts; challenges solution.md; asks gap questions per the dial; generates `tasks/*.md` (all `backlog`) with self-sufficient `# Context`, disjoint `scope`s, and correct `ground`; updates status/README next steps. Re-run with feedback to refine. |
+| `/spiral:plan <spec>` | Plan, Plan review | Reads the three human artifacts; challenges solution.md; asks gap questions per the dial; drafts/updates the `backlog.md` ledger for user verification (D11); expands verified entries — lazily, on demand — into `tasks/*.md` (all `backlog`) with self-sufficient `# Context`, disjoint `scope`s, and correct `ground`; updates status/README next steps. Re-runs resume from the ledger, never re-infer. |
+| `/spiral:refine <spec>` | Plan review (full circle; D12) | Processes feedback that reshapes the plan or the spec itself: ledger additions/edits/deletions; edit or delete not-started tasks (including scope — claims are re-plannable at will); edit `inprogress` tasks as a recorded new iteration; propose consented edits to acceptance-criteria.md/context.md/solution.md, presenting which ledger entries and tasks each change invalidates. Always ends with `spiralspec validate`. Statuses never change here; `verification`+ tasks belong to verify. |
 | `/spiral:implement <spec> [task]` | Implementation | The "continue" verb. With a task argument: run that task, or explain precisely why it is not runnable (blocked by X / scope conflict with inprogress Y / still in backlog). Without: pick from `spiralspec next`, preferring inprogress resumes, then base, then incremental; at `autonomy: high`, continue until nothing is runnable. |
 | `/spiral:verify <spec> [task]` | Verification | Processes user verdicts. Pass → `release`. Feedback → `spiralspec impact` (changed files from `--files` or, by default, `git diff --name-only` since the task left `todo`) to bound the blast radius, then update only the affected set: the task, dependent tasks, ground tasks, and — if the user agrees the spec itself was wrong — acceptance-criteria.md or context.md. |
 | `/spiral:release <spec> [task]` | Deployment, Completion | Answers deployment questions from release.md; on user confirmation flips `release → done`; updates status/README and release.md with completion details as the user decides. |
@@ -251,7 +291,7 @@ Workflow (soft):
 
 - npm package (TypeScript, open source, LGPL-3.0-only).
 - Six CLI commands: `init`, `new`, `validate`, `status`, `next`, `impact`.
-- Five skills: define, plan, implement, verify, release.
+- Six skills: define, plan, refine, implement, verify, release.
 - Two agent adapters: Claude Code, OpenCode.
 - Artifact schema as specified; parallel dispatch with scope claims; idempotent installer.
 
