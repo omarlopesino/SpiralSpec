@@ -48,7 +48,7 @@ Recorded decisions from the brainstorming session:
 Two layers with a hard boundary: a deterministic state machine below, LLM workflow above.
 
 ```
-spiralspec (npm, TypeScript, MIT, open source)
+spiralspec (npm, TypeScript, LGPL-3.0, open source)
 │
 ├─ CLI — the state layer (no AI, no network; pure file parsing)
 │   ├─ spiralspec init [--agent claude,opencode]   scaffold specs root, write .spiralspec.yml,
@@ -249,7 +249,7 @@ Workflow (soft):
 
 **In:**
 
-- npm package (TypeScript, open source).
+- npm package (TypeScript, open source, LGPL-3.0-only).
 - Six CLI commands: `init`, `new`, `validate`, `status`, `next`, `impact`.
 - Five skills: define, plan, implement, verify, release.
 - Two agent adapters: Claude Code, OpenCode.
