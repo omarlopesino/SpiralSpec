@@ -1,0 +1,138 @@
+ I want to define and implement a project to implement Spec Driven development in an agile way for coders. THe name of the tool will be SpiralSpec, a reference to make iterative and incremental developments.
+
+  # Context
+    What I mean with agile is that  frameworks like Openspec and speckit do one thing I don't like: they do all the analysis, require the developer to be sure about everything
+    before implementing the task, and go on. Other problems they have is that the spec generated at the beginning does not have its ways to be updated on the way. The artifacts of plans
+    are only generated once and never updated anymore. There are sometimes that you must make decisions in middle of the coding because what you designed is just not okay.
+    The next problem is, as they want to plan everything at once, they do an exhaustive token consumption. Sometimes, they waste all the tokens without even starting to implement, which does
+    not make sense. Another problem is that they build an exhaustive list of requirements. That seems logic but, those requirements are only for the self tool reading purpose. Finally, some
+    tools do not make a correct use of agents, which does not allows to use the good part of the context (the beginning).
+
+  # The tool
+  This is something I need your guide, as the tool can be: a complete custom npm package with commands , skills, etc. It can also be only  a set of universal skills ready to implement in different code agents. It can also be just an Openspec schema. but it must be
+
+  # Acceptance criteria: Agile Spec Driven Development
+    From my point of view, an agile way to work is:
+
+    - Be able to define the specifications of a complete sprint.
+    - Do an complete but not exhaustive analysis and design. With complete it means it has all the neccesary info to start , but it does not need to have every detail. For example, if I want you to do a migration: I can tell which technology to use and how to infer the field mapping. WIth that, you are guardrailed because you already have restrictinos about how to do it.
+    - Decisions not made can be made along the way. Modern versions of claude code are able to ask users on the fly, so why don't we do that?
+    - When there are unclear specifications, the agent must arise them. The user msut decide to specify it now or wait.  They user must have a way to make the agent be able to
+     reduce the number of questions based on the feedback, or incrementing it if the user wants. This allows to make not fully detailed specs for those who want to make an assisted development and
+    - To make the agent still autonomous, the agent has ways to detect when some feature is not specified on the fly. If the user has set the auto mode or has indicated to be autonomous and they find
+    this problem, the agent must not continue on this feature, but continue in other features they can still make . The incomplete work must be written in an artifact.
+    - Artifact results of SDD must be ai-scaffolded, but human edited. This prevent the lacn agents. THey are able to do great inferences , but they are still softwarewithout
+     human intelligence.
+    - Artifact results must not be exported into a technology specific folder. They must ha
+    - Spec driven development can be done in green and brown field projects.
+    - Tasks must be done through sub-agents. As you will see tasks will contain it self context and tasks list to know what they can do.
+    - Tasks must no overlap, there must be a solution to prevent isolated tasks overlap bet
+    - Developers msut be able to define the status of a specific task or the complete spec, and the agent must respond.
+
+  # Artifacts
+     Artifacts neccesary for a goal are created in a folder named given the content. It's flowing sections. In the brainstorming we must ensure these are the only neededartifacts and the frontmatter properties are the correct.
+  ## Context
+   context.md: It contains a description , context and motivation about why the task is neept. It explains why the task is needed.
+  ## Acceptance criteria
+       - acceptance-criteria.md : It contains the acceptance criteria. Written by the user. criteria. LEt's begin with two: functional and technical. Functional criteria
+  define what must works to consider the task complete. Technical criteria defines the techstrictiions must be evaluated by AI.
+  ## Solution
+  - solution.md: it contains the solution to the problem. Written by the user but evaluated by the agents in lookup for contradictions, better alternatives and refinement.
+  Solution must contain references to code, documentation, or every material the AI needs.
+
+  ## Tasks
+       - tasks/ : Folder with all the tasks needed to implement the task. This folder must be created and filled by the agent. The agent reads the three main files to figure out what tasks are needed.
+  Each file is a markdown that explains technically how to perform the task, with markdown e written by you with user assistance. Developer will read the file to figure outhow to test it and how it has been implemented.
+
+  ### Frontmatter properties
+
+  - *name*: Title of the task.
+  - *ground*: Each task can be base or incremental. Base means that it can be done without  done before. Incremental means it depends from one several tasks being donebefore. So, ground property must have null value if it is base, and the name of the task, which must be equal to a task of this spec as a reference
+  - *goal*: Each task must complete a specific objective. It must be enough large to don't e phrase, and enough short to don't write the full spec in one file. As thisproject is for developers, feel free to define every technical action.
+
+  - *status*: These are the possible statuses:
+     - backlog: The task has been defined by the AI, but not approved by the developer.
+     - todo: The task has been approved by the user and ready to start
+     - inprogress: The task is being implemented by the AI.
+     - verification: It needs to be tested by the user.
+     - release:
+     - done:
+  ### File contents
+
+  There must be sections done by markdown headings:
+    - # Context with the minimal needed context for the task.
+    - # Tasks list of technical tasks to do. It can be updated with future feedback.
+    - # Iterations registry of iterations to see how the task have evolved.
+    - # Testing The verification steps done by the self ai to check it works
+
+  These contents can be updated in several stages of a spec implementation. It must let theen done, how it has been iterated and how it must be tested.
+
+  ## Status
+   status is a folder that contains
+       - README.md: it is a report of the ai telling what has been done at an overall level. For each task completed, there must exist a subsection indicating how it has been done, how to verify it, and
+  possible caveats. It is not a completed status report. It is a report of the status. Thatns to indicate the actual status and the  next steps. Next steps can be implement tasks, backlog refinement, release tasks. Another section we must have is caveats: possible concerns inferred by AI and user about the task. This caveats must only be written for completed tasks.
+       - release.md: it contains the release steps that developers must do to complete the task: how to deploy / build, manual actions neccesary, etc. This must be updated after every task is done.
+
+  Note that when an agent writes a report it is usually contaminated by its own context.  Tligible for anyone that haven't been doing the task.
+
+  ## Design
+       - design.md: It is a final file , optional, that contains the design. It msut contais diagrams, use case diagrams, and sequence diagrams. It must use mermaid. THeymust not be overbloated , they must be as simple as possible. Every diagram must have a description. Report must reference the diagrams. it is only needed if there was really implemented something which needs to be explained: an algorithm, a user structure, use cases in the case the spec is a big one, sequendce diagrams in case , and uml class diagrams in the case there are new classes, or changes to existing structures (in this last case only specify what it changes).
+
+
+  # Phases of an spec
+
+  Phases are the phases an spec can have:
+
+  - *Definition*: the user must define the context, acceptance criteria and solution. This must be done by the user. Probably the user will copy and paste from an issue, or use an auxiliar skill to
+  write it. There must exist help to create the folder with the empty files, with a command
+  - *Plan*: The agent must read all the user provided files and create the task.md files at the end. Agent must find gaps or caveats and ask user about them. The developer msut guide the agent to solve
+  the doubts, to assume something if it is needed, or to postpone it. With this, the agent can be done now, and wait for the rest of tasks. As the artifacts contain enoughinformation to know the task status and the next steps, this allows the agent to be autonomous. The agent must start with base tasks and continue with incremental tasks. After a task is defined the status file next steps must be edited . After updating status, the developer must decide to straight implement the task, to define more tasks if needed (in this case the agent msut suggest before what tasks can be done), or refine the task.
+
+  All tasks must be created with backlog status.
+
+  - *Plan review*
+  In this phase , user can provide feedback to the created tasks planned by the AI. user must refine and refine with feedback until the plan is as solid as it needs in this specific moment.
+
+  - *Implementation*: This is a stage where the coding agent implement the task. Agent starts when the user decides. It is fully autonomous. If it find gaps along the way it asks the user.
+
+  If user wants AI to be autonomous , it tries to make a solution by itself but reports in tion imaginated by the agent. This is only valid when the solution is completelylogic or it is not complex. If it is a complex arquitecture change, or it has too many caveats, or it is prone to be discarded, task must be stopped. In the status file, for the specific task, it must be specified that the task could not be done autonomously and why, along with proposed solutions. In the next steps just add a brief line explaining that the user must help to unblock the task.
+
+  AI can only implement tasks that are in todo / inprogress status. The rest of states require user action.
+  When a task is started to be implemented , it must be changed from todo to inprogress.
+  When a task is ready to verify, the status of the task must change from inprogress to ver
+  Before movig to verification, the self agent must do the verification itself to don't fall in speculations.
+
+  - *Verification*: This is the manual step where the user verify tasks. user will read status file to know what tasks needs to review, then he will lookup for the task and read the testing details. after veryfying he can tell the agent the task is done and the agent will change the task status to release and update the status readme and deployment files.
+
+  If there are errors or iterations needed, the user can provide feeedback. The agent will the status readme file if needed. It can also update the task if needed, or theincremental tsaks that are related to this task. It can also update ground tasks. It can also argue the acceptance criteria is not complete and update it. It can update the main context if more
+  context is needed.
+
+  This part is very likely to problems. There are two types of problems.
+    - Exhaustive analysis of impact. We should do a blast radius check to know what really event checking every task of the project.
+    - Concurrency. As we want subagents.We must decide during the brainstorming if we want it or not.
+
+  - *Deployment*: This is only done by the user. BUt the user may ask agent things about the task , so agent must be able to help him.                                                                 - *Completion*: The user mentions the task is completed with specific details fo the deplupdate or not the report with it.
+
+  ## Solution                                                                                                                                                                                          
+  I think a set of skills to perform the plan and commands as helpers can solve the task. I think this can be a standalone project. Help me make the right decision.                                   
+  I think openspec is made to be exhaustive but maybe I am wrong. If I am wrong help me define an Openspec schema. But please think well, this is my only day with Fable-kun and my last wish to make  something useful with him.
+                                                                                                                                                                                                       Yuu can also propose me alternate solutions. But the solution must be fully open source . does not restricts you to the technology.
+                                                                                                                                                                                                       Remember , the main objectives are:- Be able to work with Spec Driven development in agile, not cascade. Specs are composed , implemented, validated, and deployed individually or in chunks. With agile Imean we should not block a task if there are obstacles, but finding ways to overcome themle after further analysis. Instead of having all planned, plan only the necessaryand make decisions on the fly.
+  - Developers must be able to implement their own workflows with the defined tools.
+  - Do not overconsume consume without even starting a task.
+  - Specs must be updated along the way.
+
+  And please, keep this in mind: if cascade projects are not good in real life, it's because it is not possible to anticipate to every use case of a task. That is why cascade SDD solutions are wrong.
+
+  This is an MVP, but the solution msut be thought as scalable. We must think how to make aagent installed skills.
+
+  For the MVP I want it to be available to be installed at claude code and Opencode.
+
+  ## Conventions
+
+  - Clean architecture.
+  - Clean code.
+  - Scalable solution.
+  - Understandable and evolutionable for humans.
+
+

@@ -59,8 +59,8 @@ spiralspec (npm, TypeScript, MIT, open source)
 │   ├─ spiralspec status <spec> [--json]           whole-spec state: tasks × statuses × blockers
 │   ├─ spiralspec next <spec> [--json]             runnable set: status todo/inprogress, deps met,
 │   │                                              scope disjoint from all inprogress tasks
-│   └─ spiralspec impact <spec> <task> [--json]    blast radius: transitive ground-descendants ∪
-│                                                  tasks whose scope intersects changed files
+│   └─ spiralspec impact <spec> <task>             blast radius: transitive ground-descendants ∪
+│         [--files a,b | git diff] [--json]        tasks whose scope intersects the changed files
 │
 └─ Skill pack — the workflow layer (agent-neutral markdown source)
     ├─ skills: define, plan, implement, verify, release  (one per verb)
@@ -75,7 +75,7 @@ spiralspec (npm, TypeScript, MIT, open source)
 
 ### Two structural principles
 
-1. **The markdown files ARE the database.** No hidden state, lockfiles, or sidecars. Task frontmatter is the single source of truth. The CLI only reads and reports; agents and humans write. This enforces "AI-scaffolded, human-edited" and keeps everything git-diffable.
+1. **The markdown files ARE the database.** No hidden state, lockfiles, or sidecars for spec state (the installer's `.spiralspec/manifest.json` tracks only skill-pack checksums, never spec state). Task frontmatter is the single source of truth. The CLI only reads and reports; agents and humans write. This enforces "AI-scaffolded, human-edited" and keeps everything git-diffable.
 2. **Agents never enumerate state in-context.** Every skill begins by querying the CLI (`status --json`, ~200 tokens) instead of reading N task files. State questions cost JSON, not prose.
 
 ### Installer / update contract (D9)
@@ -131,8 +131,12 @@ ground: null                    # or [task-slug, ...] — tasks that must be don
                                 # null = base task; non-empty = incremental task.
 status: backlog                 # backlog | todo | inprogress | verification | release | done (D5)
 scope:                          # file claim: globs this task may create/modify (D3).
-  - src/migration/mapping/**    # validate guarantees disjointness across parallel tasks.
-  - test/migration/mapping/**
+  - src/migration/mapping/**    # overlap rule: two tasks may share scope only if one
+  - test/migration/mapping/**   #   transitively grounds the other (they can never run
+                                #   concurrently). Overlap between ground-unrelated tasks
+                                #   is a `validate` error — they could be dispatched in
+                                #   parallel. `next` additionally serializes at runtime by
+                                #   excluding tasks overlapping any inprogress scope.
 blocked: null                   # or a one-line reason. Set when the agent stops autonomously
                                 # or a gap is postponed. Excluded from `next` until cleared.
 ---
@@ -180,7 +184,7 @@ Five verbs are the entire surface. Phases are states of the artifacts, not separ
 | `/spiral:define <name>` | Definition | Runs `spiralspec new`; assists the user (interview, paste from issue, draft prose) in filling context.md, acceptance-criteria.md, solution.md. The user owns the content. |
 | `/spiral:plan <spec>` | Plan, Plan review | Reads the three human artifacts; challenges solution.md; asks gap questions per the dial; generates `tasks/*.md` (all `backlog`) with self-sufficient `# Context`, disjoint `scope`s, and correct `ground`; updates status/README next steps. Re-run with feedback to refine. |
 | `/spiral:implement <spec> [task]` | Implementation | The "continue" verb. With a task argument: run that task, or explain precisely why it is not runnable (blocked by X / scope conflict with inprogress Y / still in backlog). Without: pick from `spiralspec next`, preferring inprogress resumes, then base, then incremental; at `autonomy: high`, continue until nothing is runnable. |
-| `/spiral:verify <spec> [task]` | Verification | Processes user verdicts. Pass → `release`. Feedback → `spiralspec impact` to bound the blast radius, then update only the affected set: the task, dependent tasks, ground tasks, and — if the user agrees the spec itself was wrong — acceptance-criteria.md or context.md. |
+| `/spiral:verify <spec> [task]` | Verification | Processes user verdicts. Pass → `release`. Feedback → `spiralspec impact` (changed files from `--files` or, by default, `git diff --name-only` since the task left `todo`) to bound the blast radius, then update only the affected set: the task, dependent tasks, ground tasks, and — if the user agrees the spec itself was wrong — acceptance-criteria.md or context.md. |
 | `/spiral:release <spec> [task]` | Deployment, Completion | Answers deployment questions from release.md; on user confirmation flips `release → done`; updates status/README and release.md with completion details as the user decides. |
 
 ### The question protocol (all skills)
@@ -225,7 +229,7 @@ Principle: **the CLI fails loud; the workflow degrades soft.**
 
 CLI (loud):
 
-- `validate` errors are hard failures with exact locations: `tasks/migrate-users.md: ground references 'setup-db' which does not exist`; `scope overlap: create-field-map ∩ migrate-users on src/migration/**`. Exit codes make it CI-able.
+- `validate` errors are hard failures with exact locations: `tasks/migrate-users.md: ground references 'setup-db' which does not exist`; `scope overlap between ground-unrelated tasks: create-field-map ∩ migrate-users on src/migration/**`. Exit codes make it CI-able.
 - Malformed frontmatter never crashes `status`: the task is reported as `invalid` with its parse error — a half-broken spec must remain inspectable.
 
 Workflow (soft):
