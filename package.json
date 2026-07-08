@@ -1,0 +1,29 @@
+{
+  "name": "spiralspec",
+  "version": "0.1.0",
+  "description": "Agile Spec-Driven Development for coding agents: iterative specs, parallel task sub-agents, living artifacts.",
+  "license": "LGPL-3.0-only",
+  "type": "module",
+  "bin": { "spiralspec": "./dist/cli/index.js" },
+  "files": ["dist", "skills", "templates", "LICENSE", "COPYING"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "dev": "tsx src/cli/index.ts"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
+    "picomatch": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.0",
+    "@types/picomatch": "^3.0.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
