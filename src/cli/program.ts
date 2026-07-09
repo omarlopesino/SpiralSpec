@@ -1,10 +1,12 @@
 import { Command } from 'commander';
 import { execSync } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { loadConfig } from '../adapters/config.js';
+import { loadConfig, saveConfig } from '../adapters/config.js';
 import { loadSpec } from '../adapters/fs.js';
 import { createSpec } from '../adapters/scaffold.js';
+import { installSkillPack } from '../adapters/installer.js';
+import { ADAPTER_IDS } from '../adapters/agents/index.js';
 import { validateSpec } from '../core/validate.js';
 import { buildStatusReport } from '../core/status.js';
 import { nextTasks } from '../core/next.js';
@@ -47,6 +49,51 @@ export function buildProgram(io: CliIO): Command {
         mkdirSync(specsDir, { recursive: true });
         const created = createSpec(specsDir, slug, opts.name ?? slug);
         for (const f of created) io.out(`created ${cfg.specsRoot}/${f}`);
+      } catch (e) {
+        io.out(`error: ${(e as Error).message}`);
+        process.exitCode = 1;
+      }
+    });
+
+  const runInstall = (agents: string[], force: boolean): void => {
+    const report = installSkillPack(io.cwd, agents, { force });
+    for (const f of report.written) io.out(`installed ${f}`);
+    for (const f of report.skipped) io.out(`skipped ${f} (hand-edited; use --force to overwrite)`);
+  };
+
+  program
+    .command('init')
+    .option('--agent <list>', 'comma-separated agents', ADAPTER_IDS.join(','))
+    .option('--force', 'overwrite hand-edited managed files')
+    .description('Initialize SpiralSpec: config, specs root, and skill pack')
+    .action((opts: { agent: string; force?: boolean }) => {
+      try {
+        const agents = opts.agent.split(',').map((a) => a.trim()).filter(Boolean);
+        let cfg = loadConfig(io.cwd);
+        cfg = { ...cfg, agents };
+        if (!existsSync(resolve(io.cwd, '.spiralspec.yml'))) io.out('created .spiralspec.yml');
+        saveConfig(io.cwd, cfg);
+        mkdirSync(resolve(io.cwd, cfg.specsRoot), { recursive: true });
+        runInstall(agents, opts.force === true);
+      } catch (e) {
+        io.out(`error: ${(e as Error).message}`);
+        process.exitCode = 1;
+      }
+    });
+
+  program
+    .command('update')
+    .option('--force', 'overwrite hand-edited managed files')
+    .description('Re-render the skill pack for the configured agents')
+    .action((opts: { force?: boolean }) => {
+      try {
+        const cfg = loadConfig(io.cwd);
+        if (cfg.agents.length === 0) {
+          io.out('error: no agents configured; run spiralspec init first');
+          process.exitCode = 1;
+          return;
+        }
+        runInstall(cfg.agents, opts.force === true);
       } catch (e) {
         io.out(`error: ${(e as Error).message}`);
         process.exitCode = 1;
