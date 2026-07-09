@@ -58,6 +58,14 @@ implementation runs.
    who was not in this conversation understands what changed and why.
 7. Suggest the natural next verb: /spiral:plan to expand new entries,
    /spiral:implement to build.
+8. Dispatch a commit sub-agent (reuse the "## Commit sub-agent prompt
+   template" from `skills/implement.md`, mode (b) explicit scope, at the
+   `low` tier of the `models:` mapping) covering `backlog.md`,
+   `status/README.md`, and any not-started (`backlog`/`todo`) task files
+   edited this session. Exclude `acceptance-criteria.md`, `context.md`, and
+   `solution.md` — those are human-owned and edited iteratively across refine
+   rounds, not mechanical bookkeeping. Wait for it to finish before
+   continuing; treat "nothing to commit" as a normal outcome.
 
 ## Rules
 
