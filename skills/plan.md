@@ -23,10 +23,17 @@ breakdown from scratch.
    user owns the file.
 3. Surface gaps using the question protocol below.
 4. Draft or extend `backlog.md`: one line per proposed task,
-   `- [ ] task-slug — one-line goal`. This is the cheap inventory the user
-   verifies BEFORE any expensive expansion. STOP and ask the user to verify
-   (edit, reorder, delete lines) before continuing.
-5. Expand verified entries into `tasks/<slug>.md` using the template below —
+   `- [ ] task-slug — one-line goal`. Present the drafted ledger in your
+   message. Verification is offered, never required — scale the stop to the
+   autonomy dial:
+   - **low**: stop and wait for the user to verify (edit, reorder, delete
+     lines) before expanding anything.
+   - **medium**: ask one question — proceed with this backlog, or review it
+     first? — and follow the answer.
+   - **high**: continue immediately; record in `status/README.md`
+     `# Next steps` that the ledger is unverified so the user can review or
+     refine it later. Never block.
+5. Expand entries into `tasks/<slug>.md` using the template below —
    lazily: the user chooses to expand everything, or only what will be
    implemented now, leaving the rest as one-liners for later sessions. Flip
    each expanded entry to `[x]`. Every task starts as `status: backlog`.

@@ -15,11 +15,13 @@ mid-flight decisions instead of fighting them.
 - **Markdown is the database.** A spec is a folder (`specs/<slug>/`) of plain
   markdown: `context.md`, `acceptance-criteria.md`, `solution.md` (written by
   you), `backlog.md` (the planning ledger: proposed tasks as one-liners,
-  verified by you before any expansion), `tasks/*.md` (expanded by the agent,
+  reviewed by you as much as you choose), `tasks/*.md` (expanded by the agent,
   approved by you), `status/README.md` + `status/release.md` (living
   reports). AI-scaffolded, human-edited, agent-agnostic.
-- **Plan lazily, resume cheaply.** The agent drafts the ledger first; you
-  verify the inventory before any task is expanded. Expand and implement one
+- **Plan lazily, resume cheaply.** The agent drafts the ledger first and
+  shows it to you; whether planning stops for your verification follows the
+  autonomy dial — required at `low`, one question at `medium`, never blocking
+  at `high` (checks are offered, not required). Expand and implement one
   task today, keep the rest as one-liners — a later session resumes from the
   ledger instead of re-inferring the breakdown.
 - **Feedback goes full circle.** `/spiral:refine` applies post-plan feedback
