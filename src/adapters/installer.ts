@@ -68,7 +68,7 @@ export function installSkillPack(
 
       if ((handEdited || unknownExisting) && opts.force !== true) {
         report.skipped.push(file.relPath);
-        nextManifest.files[file.relPath] = recorded ?? sha256(onDisk);
+        if (recorded !== undefined) nextManifest.files[file.relPath] = recorded;
         continue;
       }
       mkdirSync(dirname(absPath), { recursive: true });

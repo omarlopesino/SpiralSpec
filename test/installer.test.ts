@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadSkillSources, installSkillPack } from '../src/adapters/installer.js';
@@ -48,5 +48,19 @@ describe('installSkillPack', () => {
     const forced = installSkillPack(dir, ['claude'], { force: true });
     expect(forced.skipped).toEqual([]);
     expect(readFileSync(edited, 'utf8')).not.toBe('my custom version');
+  });
+
+  it('keeps protecting an unmanaged pre-existing file across repeated runs', () => {
+    const preexisting = join(dir, '.claude/skills/spiralspec-plan/SKILL.md');
+    mkdirSync(join(dir, '.claude/skills/spiralspec-plan'), { recursive: true });
+    writeFileSync(preexisting, 'user authored file', 'utf8');
+    const first = installSkillPack(dir, ['claude']);
+    expect(first.skipped).toEqual(['.claude/skills/spiralspec-plan/SKILL.md']);
+    const second = installSkillPack(dir, ['claude']);
+    expect(second.skipped).toEqual(['.claude/skills/spiralspec-plan/SKILL.md']);
+    expect(readFileSync(preexisting, 'utf8')).toBe('user authored file');
+    const forced = installSkillPack(dir, ['claude'], { force: true });
+    expect(forced.skipped).toEqual([]);
+    expect(readFileSync(preexisting, 'utf8')).not.toBe('user authored file');
   });
 });

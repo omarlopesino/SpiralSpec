@@ -58,7 +58,7 @@ export function buildProgram(io: CliIO): Command {
   const runInstall = (agents: string[], force: boolean): void => {
     const report = installSkillPack(io.cwd, agents, { force });
     for (const f of report.written) io.out(`installed ${f}`);
-    for (const f of report.skipped) io.out(`skipped ${f} (hand-edited; use --force to overwrite)`);
+    for (const f of report.skipped) io.out(`skipped ${f} (hand-edited or pre-existing; use --force to overwrite)`);
   };
 
   program
