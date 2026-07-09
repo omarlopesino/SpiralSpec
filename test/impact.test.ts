@@ -42,4 +42,13 @@ describe('impactOf', () => {
     const r = impactOf(SPEC, 'field-map', []);
     expect(r).toEqual({ task: 'field-map', dependents: ['migrate'], scopeHits: [], affected: ['migrate'] });
   });
+
+  it('dedups a slug that is both a ground-dependent and a scope hit', () => {
+    // 'migrate' ground-depends on setup-db (making it a dependent) AND its own scope
+    // (src/migrate/**) matches one of the changed files (making it a scope hit too).
+    const r = impactOf(SPEC, 'setup-db', ['db/schema.sql', 'src/migrate/index.ts']);
+    expect(r.dependents).toEqual(['migrate']);
+    expect(r.scopeHits).toEqual(['migrate']);
+    expect(r.affected).toEqual(['migrate']); // appears exactly once despite being in both sets
+  });
 });

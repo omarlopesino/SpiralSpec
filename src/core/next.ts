@@ -8,6 +8,8 @@ const DEP_MET: readonly TaskStatus[] = ['verification', 'release', 'done'];
 
 export function nextTasks(spec: SpecData): NextResult {
   const bySlug = new Map(spec.tasks.map((t) => [t.slug, t]));
+  // Blocked WIP still claims its scope: an inprogress task that is also blocked stays in
+  // this clash pool, since work has already started on its files even if it's stalled.
   const inprogress = spec.tasks.filter((t) => t.fm.status === 'inprogress');
   const runnable: TaskData[] = [];
   const excluded: Exclusion[] = [];

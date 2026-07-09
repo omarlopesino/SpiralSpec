@@ -5,7 +5,7 @@ ground: null
 status: verification
 scope:
   - db/**
-blocked: null
+blocked: awaiting schema review
 ---
 
 # Context

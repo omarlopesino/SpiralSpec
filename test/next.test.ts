@@ -57,4 +57,18 @@ describe('nextTasks', () => {
     );
     expect(r.excluded).toContainEqual({ slug: 'b', reason: 'scope conflict with inprogress: a' });
   });
+
+  it('a blocked inprogress task still claims its scope in the clash pool', () => {
+    const r = nextTasks(
+      spec([
+        task('wip', { status: 'inprogress', blocked: 'waiting on external review', scope: ['shared/**'] }),
+        task('b', { scope: ['shared/sub/**'], ground: null }),
+      ]),
+    );
+    // wip itself is excluded for being blocked...
+    expect(r.excluded).toContainEqual({ slug: 'wip', reason: 'blocked: waiting on external review' });
+    // ...but it still occupies the clash pool, so the todo task with an overlapping scope is excluded too.
+    expect(r.excluded).toContainEqual({ slug: 'b', reason: 'scope conflict with inprogress: wip' });
+    expect(r.runnable).toEqual([]);
+  });
 });
