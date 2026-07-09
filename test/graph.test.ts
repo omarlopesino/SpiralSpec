@@ -31,6 +31,11 @@ describe('dependents', () => {
     expect(dependents(tasks, 'a').sort()).toEqual(['b', 'c']);
     expect(dependents(tasks, 'd')).toEqual([]);
   });
+  it('never includes the queried slug in its own dependents (cyclic input)', () => {
+    const tasks = [task('a', ['b']), task('b', ['a'])];
+    expect(dependents(tasks, 'a')).toEqual(['b']);
+    expect(groundRelated(tasks, 'a', 'a')).toBe(false);
+  });
 });
 
 describe('groundRelated', () => {

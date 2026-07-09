@@ -39,6 +39,7 @@ export function dependents(tasks: TaskData[], slug: string): string[] {
       }
     }
   }
+  out.delete(slug);
   return [...out];
 }
 
