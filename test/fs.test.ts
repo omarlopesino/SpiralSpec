@@ -1,11 +1,33 @@
 import { describe, it, expect } from 'vitest';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { loadSpec, listSpecs } from '../src/adapters/fs.js';
 import { loadConfig } from '../src/adapters/config.js';
 
 const PROJECT = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'project');
 const SPECS = join(PROJECT, 'specs');
+
+const VALID_TASK = `---
+name: Only task
+goal: Prove the spec still loads its other tasks
+ground: null
+status: todo
+scope:
+  - src/only/**
+blocked: null
+---
+
+# Context
+x
+# Tasks
+- [ ] do it
+# Iterations
+
+# Testing
+
+`;
 
 describe('loadConfig', () => {
   it('reads .spiralspec.yml including the models mapping', () => {
@@ -35,6 +57,34 @@ describe('loadSpec', () => {
   });
   it('throws for a missing spec', () => {
     expect(() => loadSpec(SPECS, 'ghost')).toThrow('spec not found: ghost');
+  });
+
+  it('skips a directory named *.md inside tasks/ instead of crashing on EISDIR', () => {
+    const specsDir = mkdtempSync(join(tmpdir(), 'spiral-fs-'));
+    const dir = join(specsDir, 'dir-task');
+    mkdirSync(join(dir, 'tasks', 'notes.md'), { recursive: true }); // a directory, not a file
+    writeFileSync(join(dir, 'tasks', 'notes.md', 'inner.txt'), 'irrelevant', 'utf8');
+    writeFileSync(join(dir, 'context.md'), '---\nname: Dir task\nautonomy: medium\n---\n\n# Context\n', 'utf8');
+    writeFileSync(join(dir, 'tasks', 'only-task.md'), VALID_TASK, 'utf8');
+
+    const spec = loadSpec(specsDir, 'dir-task');
+    expect(spec.tasks.map((t) => t.slug)).toEqual(['only-task']);
+    expect(spec.invalid).toEqual([]);
+  });
+
+  it('degrades a context.md with invalid YAML frontmatter to a fallback + invalid entry', () => {
+    const specsDir = mkdtempSync(join(tmpdir(), 'spiral-fs-'));
+    const dir = join(specsDir, 'broken-context');
+    mkdirSync(join(dir, 'tasks'), { recursive: true });
+    writeFileSync(join(dir, 'context.md'), '---\nname: [unterminated\nautonomy: medium\n---\n\n# Context\n', 'utf8');
+    writeFileSync(join(dir, 'tasks', 'only-task.md'), VALID_TASK, 'utf8');
+
+    const spec = loadSpec(specsDir, 'broken-context');
+    expect(spec.fm).toEqual({ name: 'broken-context', autonomy: 'medium', created: undefined });
+    expect(spec.invalid).toEqual([
+      { slug: 'context', file: 'context.md', error: expect.stringContaining('invalid frontmatter:') },
+    ]);
+    expect(spec.tasks.map((t) => t.slug)).toEqual(['only-task']);
   });
 });
 
