@@ -2,10 +2,18 @@
 
 `add-commit-substep` verified (pass), sitting at `status: release`, awaiting
 deployment confirmation via `/spiral:release git-commit` (see
-`status/release.md`). `commit-spec-metadata` implemented and self-verified;
-sitting at `status: verification`, awaiting human sign-off
-(`/spiral:verify git-commit`). No other tasks in the backlog — both are now
-expanded and either release-ready or verification-ready.
+`status/release.md`). `commit-spec-metadata` implemented, self-verified, and
+live-tested (see below); sitting at `status: verification`, awaiting human
+sign-off (`/spiral:verify git-commit`). The third backlog entry,
+`commit-metadata-all-skills`, is now expanded into
+`tasks/commit-metadata-all-skills.md`, sitting at `status: backlog` (grounded
+on `commit-spec-metadata`) — planning surfaced that `skills/release.md`
+already claims to reuse the commit template with an explicit scope
+(`specs/<spec>/**`) but the template's written contract only supports
+deriving scope from a task file; the task generalizes the template to accept
+either mode before wiring the same metadata-commit dispatch into
+`verify.md`, `refine.md`, and `plan.md` (see `solution.md`'s
+"commit-metadata-all-skills" decision entry for the full reasoning).
 
 # Next steps
 
@@ -17,10 +25,12 @@ expanded and either release-ready or verification-ready.
   `/spiral:verify git-commit` to record the verdict.
 - Run `/spiral:release git-commit` to close out `add-commit-substep` (confirm
   the downstream re-run-`spiralspec init` step in `status/release.md`).
-- Neither commit mechanism has been exercised end-to-end against a real task
-  yet — worth watching closely the first time either fires for real (this
-  spec's own future task-completions and eventual `done` are the first live
-  test).
+- Flip `commit-metadata-all-skills` from `backlog` to `todo` when ready to
+  build it, then run `/spiral:implement git-commit`.
+- `add-commit-substep`'s own per-task commit step has not yet been exercised
+  on a real task in *another* spec (chicken-and-egg: it's the task that
+  created step 6, so it couldn't use it on itself) — worth watching the first
+  time that fires.
 
 # Completed tasks
 
@@ -36,10 +46,15 @@ expanded and either release-ready or verification-ready.
   `skills/release.md` step 3; diff-check the two generated
   `.claude/skills/spiralspec-*/SKILL.md` files match. `npm test` — 104/104
   passing (sub-agent's self-report; re-run locally to confirm).
-  Caveats: not yet exercised against a real task/commit; the metadata commit
-  message is currently hardcoded to "docs: update spec metadata" rather than
-  going through the same convention-detection step used for implementation
-  commits — worth a look during verification.
+  Live-tested: dispatched the commit sub-agent on this task's own change set —
+  produced `d1b1ff1` (implementation: the two skill files + generated
+  counterparts + manifest) and `2ae3691` (metadata: this file, `backlog.md`,
+  the task file) as two separate, correctly-scoped commits; `git status`
+  confirms nothing outside scope was touched (`solution.md` and
+  `add-commit-substep.md`'s later status flip were correctly left alone).
+  Caveat: the metadata commit message is hardcoded to "docs: update spec
+  metadata" rather than going through the same convention-detection step used
+  for implementation commits — worth a look during verification.
 
 - **add-commit-substep** (2026-07-09): Added step 6 to `skills/implement.md`
   — after a task reaches `status: verification`, dispatch a commit sub-agent

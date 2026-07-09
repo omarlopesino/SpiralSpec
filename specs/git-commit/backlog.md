@@ -7,3 +7,4 @@
 
 - [x] add-commit-substep — add a commit sub-agent dispatch step to skills/implement.md, wired through the models: mapping
 - [x] commit-spec-metadata — commit spec metadata (status/README.md, task frontmatter) as its own commit per-task in implement.md step 6, and a wrap-up commit in release.md step 3 when the spec reaches done (ground: add-commit-substep)
+- [x] commit-metadata-all-skills — add a metadata-commit step to verify.md, refine.md, and plan.md, reusing the commit sub-agent template so status/README.md and task-frontmatter edits from those flows are committed too (ground: commit-spec-metadata)

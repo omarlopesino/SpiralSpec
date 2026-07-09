@@ -7,7 +7,7 @@ goal: >
   allowed to touch, then regenerates the installed skill pack so this repo's
   own `.claude/` copies pick up the change.
 ground: null
-status: verification
+status: release
 scope:
   - skills/implement.md
   - .claude/skills/spiralspec-implement/SKILL.md

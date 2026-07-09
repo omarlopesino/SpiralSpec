@@ -48,3 +48,61 @@ Not hooked off `implement.md`'s "runnable is empty" check — that only means
 nothing left to *dispatch*; tasks can still be sitting in `verification`/
 `release` awaiting a human, so it isn't the same as the spec truly being
 done.
+
+## Decisions (from refinement, 2026-07-09, round 2)
+
+Dogfooding surfaced a gap: `status/README.md` and task frontmatter are
+rewritten by *every* skill (`implement`, `verify`, `refine`, `release`,
+`plan`), but the metadata-commit step above was only wired into
+`implement.md` and `release.md`. Edits made during `/spiral:verify` (e.g. a
+task's `verification → release` flip) or `/spiral:refine` (backlog/status
+edits) had no trigger to commit them — confirmed live: after verifying and
+refining, `status/README.md` and a task's frontmatter sat modified with
+nothing to commit them.
+
+Fix: `skills/verify.md`, `skills/refine.md`, and `skills/plan.md` each get
+their own metadata-commit step at the end of their flow, reusing the same
+`## Commit sub-agent prompt template` from `skills/implement.md` (same as
+`release.md` already does), scoped to whatever each flow actually touched:
+
+- **verify.md**: after either verdict path (pass or feedback), commit the
+  affected task file(s) + `status/README.md` + `status/release.md`.
+- **refine.md**: after updating `status/README.md`, commit `backlog.md`,
+  `status/README.md`, and any not-started task files edited this session.
+  `acceptance-criteria.md`, `context.md`, and `solution.md` remain excluded —
+  same as the existing per-task metadata commit — since they're human-owned
+  and edited iteratively across refine rounds, not mechanical bookkeeping.
+- **plan.md**: after updating `status/README.md`, commit `backlog.md`,
+  `status/README.md`, and newly expanded `tasks/<slug>.md` files.
+
+Each is its own commit, separate from any implementation commit, same
+atomic-commit reasoning as above.
+
+## Decisions (from planning, 2026-07-09, commit-metadata-all-skills)
+
+Challenge finding while expanding this entry: `skills/release.md` step 3
+already claims to reuse the `## Commit sub-agent prompt template` "scoped
+explicitly to `specs/<spec>/**` instead of task scope globs," but the
+template's literal contract step 1 only knows how to derive scope by reading
+a task file's frontmatter — there is no actual explicit-scope override in the
+written prompt. `verify.md`, `refine.md`, and `plan.md` need the same
+explicit-scope invocation (none of them centers on a single task file the way
+`implement.md` does), so this latent gap must be closed for any of them to
+work correctly.
+
+**Assumption (log-and-proceed):** generalize the template's contract step 1
+to accept either (a) a task file path to derive `scope:` globs from
+(`implement.md`'s existing use), or (b) an explicit list of files/globs
+supplied directly by the caller (`release.md`'s existing claim, and the new
+`verify.md`/`refine.md`/`plan.md` uses). The dispatching skill states which
+mode applies and supplies the concrete globs/files inline — no behavior change
+for `implement.md`'s own dispatch. This is a prompt-wording generalization
+only (no new files, no schema change), so it's treated as low-risk/reversible
+rather than a hard gap requiring user sign-off.
+
+`verify.md`/`refine.md`/`plan.md` dispatches are single-scope (mode b) —
+unlike `implement.md`, they have no separate "implementation vs. metadata"
+split to make within one dispatch, since their entire scope already *is*
+metadata. Contract step 5 (split into atomic commits when multiple distinct
+changes are staged) still applies if the scoped file set spans more than one
+logical change.
