@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
+import { yamlScalar } from './agents/claude.js';
 
 const TEMPLATES = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'templates');
 
@@ -16,7 +17,11 @@ export function createSpec(specsDir: string, slug: string, name: string): string
   mkdirSync(join(dir, 'status'), { recursive: true });
 
   const files: Array<[string, string]> = [
-    [join(dir, 'context.md'), render('context.md', { name, date })],
+    // `date` is machine-generated (ISO date, always safe) and the template
+    // already wraps it in explicit double quotes; escaping it too would
+    // double-quote date-like strings (js-yaml quotes them to avoid the YAML
+    // timestamp type), corrupting the value. Only `name` carries user input.
+    [join(dir, 'context.md'), render('context.md', { name: yamlScalar(name), date })],
     [join(dir, 'acceptance-criteria.md'), render('acceptance-criteria.md', {})],
     [join(dir, 'solution.md'), render('solution.md', {})],
     [join(dir, 'backlog.md'), render('backlog.md', {})],
@@ -25,5 +30,5 @@ export function createSpec(specsDir: string, slug: string, name: string): string
     [join(dir, 'tasks', '.gitkeep'), ''],
   ];
   for (const [path, content] of files) writeFileSync(path, content, 'utf8');
-  return files.map(([path]) => path.slice(specsDir.length + 1).split('\\').join('/'));
+  return files.map(([path]) => relative(specsDir, path).split('\\').join('/'));
 }

@@ -1,5 +1,6 @@
 import type { AgentAdapter, RenderedFile } from './types.js';
 import { marker } from './types.js';
+import { yamlScalar } from './claude.js';
 
 export const opencodeAdapter: AgentAdapter = {
   id: 'opencode',
@@ -8,7 +9,7 @@ export const opencodeAdapter: AgentAdapter = {
     for (const s of skills) {
       files.push({
         relPath: `.opencode/commands/spiral-${s.id}.md`,
-        content: `---\ndescription: ${s.description}\n---\n\n${marker(version)}\n\nTarget: $ARGUMENTS\n\n${s.body}\n`,
+        content: `---\ndescription: ${yamlScalar(s.description)}\n---\n\n${marker(version)}\n\nTarget: $ARGUMENTS\n\n${s.body}\n`,
       });
     }
     return files;
