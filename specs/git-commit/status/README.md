@@ -1,36 +1,42 @@
 # Current state
 
-`add-commit-substep` verified (pass), sitting at `status: release`, awaiting
-deployment confirmation via `/spiral:release git-commit` (see
-`status/release.md`). `commit-spec-metadata` implemented, self-verified, and
-live-tested (see below); sitting at `status: verification`, awaiting human
-sign-off (`/spiral:verify git-commit`). The third backlog entry,
-`commit-metadata-all-skills`, is now expanded into
-`tasks/commit-metadata-all-skills.md`, sitting at `status: backlog` (grounded
-on `commit-spec-metadata`) — planning surfaced that `skills/release.md`
-already claims to reuse the commit template with an explicit scope
-(`specs/<spec>/**`) but the template's written contract only supports
-deriving scope from a task file; the task generalizes the template to accept
-either mode before wiring the same metadata-commit dispatch into
-`verify.md`, `refine.md`, and `plan.md` (see `solution.md`'s
-"commit-metadata-all-skills" decision entry for the full reasoning).
+`add-commit-substep` and `commit-spec-metadata` are both verified (pass),
+sitting at `status: release`, awaiting deployment confirmation via
+`/spiral:release git-commit` (see `status/release.md`). The third backlog
+entry, `commit-metadata-all-skills`, is now implemented and self-verified
+(see below); it generalizes the "## Commit sub-agent prompt template" in
+`skills/implement.md` to support an explicit-scope mode (b) alongside the
+existing task-derived mode (a), then wires a metadata-commit dispatch step
+(mode (b)) into `skills/verify.md`, `skills/refine.md`, and `skills/plan.md`,
+and updates `skills/release.md`'s existing template reuse to name mode (b)
+explicitly (wording only). Mid-implementation the task hit a real scope gap
+— its checklist required editing `skills/release.md` but the frontmatter
+`scope:` list omitted it and its generated counterparts; the user chose to
+expand scope rather than drop the item, and the sub-agent resumed to finish
+it. Sitting at `status: verification`, awaiting human sign-off
+(`/spiral:verify git-commit`).
 
 # Next steps
 
-- Verify `commit-spec-metadata`: read `skills/implement.md` step 6 + the
-  extended "## Commit sub-agent prompt template" step 7-8, and
-  `skills/release.md` step 3; confirm the generated
-  `.claude/skills/spiralspec-implement/SKILL.md` /
+- Verify `commit-metadata-all-skills`: read `skills/implement.md`'s template
+  (mode (a)/(b) documentation), the new metadata-commit steps in
+  `skills/verify.md` (step 6), `skills/refine.md` (step 8), and
+  `skills/plan.md` (step 8, old step 8 renumbered to 9), and the wording-only
+  change in `skills/release.md` step 3; confirm the four generated
+  `.claude/skills/spiralspec-{implement,verify,refine,plan}/SKILL.md` and
   `.claude/skills/spiralspec-release/SKILL.md` match. Run
   `/spiral:verify git-commit` to record the verdict.
-- Run `/spiral:release git-commit` to close out `add-commit-substep` (confirm
-  the downstream re-run-`spiralspec init` step in `status/release.md`).
-- Flip `commit-metadata-all-skills` from `backlog` to `todo` when ready to
-  build it, then run `/spiral:implement git-commit`.
+- Run `/spiral:release git-commit` to close out `add-commit-substep` and
+  `commit-spec-metadata` (confirm the downstream re-run-`spiralspec init`
+  step in `status/release.md`).
 - `add-commit-substep`'s own per-task commit step has not yet been exercised
   on a real task in *another* spec (chicken-and-egg: it's the task that
   created step 6, so it couldn't use it on itself) — worth watching the first
   time that fires.
+- Flagged during verification: the metadata commit message in the template's
+  step 7 is hardcoded to "docs: update spec metadata" rather than going
+  through the convention-detection step used for implementation commits —
+  not blocking, worth revisiting later.
 
 # Completed tasks
 
