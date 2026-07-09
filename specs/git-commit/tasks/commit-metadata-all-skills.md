@@ -9,7 +9,7 @@ goal: >
   are committed, closing the gap where only `implement.md` and `release.md`
   had a commit trigger.
 ground: [commit-spec-metadata]
-status: release
+status: done
 scope:
   - skills/implement.md
   - skills/verify.md

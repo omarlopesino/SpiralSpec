@@ -16,3 +16,15 @@
   `.claude/skills/spiralspec-plan/SKILL.md` each gained a new metadata-commit
   dispatch step reusing that template in mode (b). Same hand-edit caveat
   applies to any of these four generated files.
+
+# Deployment (2026-07-10)
+
+All three tasks (`add-commit-substep`, `commit-spec-metadata`,
+`commit-metadata-all-skills`) confirmed done. No external publish (e.g. npm)
+was required — this repo dogfoods its own skill pack directly, and
+`spiralspec init` was already re-run in-repo after each task, regenerating
+all five affected `.claude/skills/spiralspec-*/SKILL.md` files
+(implement, verify, refine, plan, release) and their `.claude/commands/spiral/*.md`
+counterparts. Downstream projects consuming spiralspec still need to re-run
+`spiralspec init` (or `--force` if they've hand-edited the generated files)
+to pick up these changes on their next update.

@@ -1,36 +1,25 @@
 # Current state
 
-All three tasks are verified (pass) and sitting at `status: release`,
-awaiting deployment confirmation via `/spiral:release git-commit` (see
-`status/release.md`): `add-commit-substep`, `commit-spec-metadata`, and
-`commit-metadata-all-skills`. The last of these generalizes the "## Commit
-sub-agent prompt template" in `skills/implement.md` to support an
-explicit-scope mode (b) alongside the existing task-derived mode (a), then
-wires a metadata-commit dispatch step (mode (b)) into `skills/verify.md`,
-`skills/refine.md`, and `skills/plan.md`, and updates `skills/release.md`'s
-existing template reuse to name mode (b) explicitly (wording only).
-Mid-implementation it hit a real scope gap — its checklist required editing
-`skills/release.md` but the frontmatter `scope:` list omitted it and its
-generated counterparts; the user chose to expand scope rather than drop the
-item, and the sub-agent resumed to finish it. The newly-built `verify.md`
-step 6 (metadata commit dispatch) is exercised for the first time right after
-this verdict — see `# Next steps`.
+All three tasks are **done**: `add-commit-substep`, `commit-spec-metadata`,
+and `commit-metadata-all-skills`. No external publish was required — this
+repo dogfoods its own skill pack, and `spiralspec init` was re-run in-repo
+after each task (see `status/release.md`'s "# Deployment" entry). The spec's
+goal — teaching `/spiral:implement`, `/spiral:verify`, `/spiral:refine`, and
+`/spiral:plan` to commit their own implementation and metadata changes,
+instead of leaving them for the user to stage by hand — is complete.
 
 # Next steps
 
-- Run `/spiral:release git-commit` to close out all three tasks (confirm the
-  downstream re-run-`spiralspec init` step in `status/release.md`, which now
-  lists four generated skill files needing re-sync: implement, verify,
-  refine, plan, plus release).
-- `add-commit-substep`'s own per-task commit step, and `commit-metadata-all-
-  skills`' new verify/refine/plan metadata-commit steps, have not yet been
-  exercised on a real task in *another* spec (chicken-and-egg: these are the
-  tasks that created those steps) — worth watching the first time each
-  fires for real.
+- The spec is complete; nothing further required for `git-commit` itself.
+- Watch the first *real* (non-dogfood) exercise of: `add-commit-substep`'s
+  per-task commit step, and `commit-metadata-all-skills`' new
+  verify/refine/plan metadata-commit steps — all were only exercised on this
+  spec's own tasks so far (chicken-and-egg: these are the tasks that created
+  those steps).
 - Flagged during verification: the metadata commit message in the template's
   step 7 is hardcoded to "docs: update spec metadata" rather than going
   through the convention-detection step used for implementation commits —
-  not blocking, worth revisiting later.
+  not blocking, worth revisiting later as a follow-up spec if it matters.
 
 # Completed tasks
 

@@ -7,7 +7,7 @@ goal: >
   commit — at two points: per-task right after it reaches verification, and
   a wrap-up commit when the whole spec reaches done.
 ground: [add-commit-substep]
-status: release
+status: done
 scope:
   - skills/implement.md
   - skills/release.md
