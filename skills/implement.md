@@ -32,9 +32,12 @@ context.
    it, caveats) and append any deploy/build/manual steps to
    `status/release.md`. YOU write the reports, never the sub-agent — and write
    for a reader who has not seen this conversation.
-6. Re-run `spiralspec next`. At autonomy **high**: continue until `runnable`
+6. Dispatch a commit sub-agent using the "Commit sub-agent prompt template"
+   below, selecting the `low` model tier from the `models:` mapping (not the
+   task's own `complexity` tier). Wait for it to finish before continuing.
+7. Re-run `spiralspec next`. At autonomy **high**: continue until `runnable`
    is empty. At **low/medium**: report and ask before the next batch.
-7. When everything is excluded, report why per task and what the user must do.
+8. When everything is excluded, report why per task and what the user must do.
 
 ## Model selection
 
@@ -74,6 +77,35 @@ Dispatch with exactly this structure (fill the placeholders):
 
     Return a 5-line summary: what changed, test evidence, files touched.
 
+## Commit sub-agent prompt template
+
+Dispatch with exactly this structure (fill the placeholders):
+
+    You are committing files for a completed spec task. Your entire context is
+    the task file below; do not read other spec artifacts.
+    Project root: <absolute path>. Task file: <absolute path to tasks/<slug>.md>.
+
+    Contract — follow in order:
+    1. Read the task file to extract the `scope:` globs from the frontmatter.
+    2. Stage exactly the files matching those globs that have been
+       created/modified in this working tree. Never use `git add -A`, `git add
+       .`, or anything that stages files outside the task's scope.
+    3. If nothing is staged after step 2, report "nothing to commit" and stop.
+    4. Search for a commit-message convention (e.g. CONTRIBUTING.md,
+       commit-convention documentation, or infer patterns from recent
+       `git log --oneline` output). If none is found, use a plain descriptive
+       message that matches the task's goal.
+    5. Use `git diff --cached` to review staged changes. If they contain
+       multiple logically distinct changes, create multiple atomic commits
+       instead of one. Each commit should be small and focused.
+    6. Commit the staged changes (or each atomic batch) with `git commit`.
+       Never force-push, amend, rebase, or rewrite history.
+    7. Return a short summary: which commit(s) were created (hash + one-line
+       message each), or "nothing to commit".
+
+    Gap rule: if you cannot determine the task scope or commit convention,
+    report what information is missing and stop.
+
 ## Rules
 
 - Re-read artifact files before acting on them; they are the database and the
@@ -85,4 +117,7 @@ Dispatch with exactly this structure (fill the placeholders):
 - Never halt the sprint for one blocked task; record it in
   `status/README.md` `# Blocked` (reason + proposed solutions) and continue
   with other runnable tasks.
+- A failed or blocked commit sub-agent (e.g. a pre-commit hook rejects the
+  commit) is recorded in `status/README.md` `# Blocked` the same way a blocked
+  implementation task is — it must never abort the rest of the sprint.
 - If the user's instruction contradicts artifact state, ask — don't guess.
