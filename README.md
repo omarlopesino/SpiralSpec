@@ -35,6 +35,12 @@ mid-flight decisions instead of fighting them.
 - **Tasks run in parallel sub-agents, safely.** Each task declares a `scope`
   (file-claim globs). Ground-unrelated tasks must have disjoint scopes —
   validated, not hoped for. Each sub-agent's context is exactly one task file.
+- **Complexity-aware model dispatch (opt-in).** Tasks carry a
+  `complexity: low | medium | high` hint assigned at plan time. Add a
+  `models:` mapping to `.spiralspec.yml` (e.g. `low: haiku`, `high: opus`)
+  and the implement skill dispatches each sub-agent on the matching model;
+  no mapping means everything inherits your session model. Blocked work
+  escalates one tier before giving up.
 - **An autonomy dial per spec** (`low | medium | high`) controls how much the
   agent asks vs. decides. Gaps are decided now, assumed-and-logged, or
   postponed as `blocked` — visible in the artifact, never lost in chat.

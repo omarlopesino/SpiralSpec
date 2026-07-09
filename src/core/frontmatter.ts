@@ -1,6 +1,6 @@
 import matter from 'gray-matter';
-import type { SpecFrontmatter, TaskData, TaskFrontmatter, TaskStatus } from './types.js';
-import { TASK_STATUSES } from './types.js';
+import type { SpecFrontmatter, TaskComplexity, TaskData, TaskFrontmatter, TaskStatus } from './types.js';
+import { TASK_COMPLEXITIES, TASK_STATUSES } from './types.js';
 
 export type ParseResult = { ok: true; task: TaskData } | { ok: false; error: string };
 
@@ -21,6 +21,9 @@ export function parseTaskFile(slug: string, file: string, raw: string): ParseRes
   if (typeof data.status !== 'string' || !TASK_STATUSES.includes(data.status as TaskStatus)) {
     return { ok: false, error: `invalid status: ${String(data.status)}` };
   }
+  if (data.complexity != null && !TASK_COMPLEXITIES.includes(data.complexity as TaskComplexity)) {
+    return { ok: false, error: `invalid complexity: ${String(data.complexity)}` };
+  }
   const ground =
     data.ground == null ? null : Array.isArray(data.ground) ? data.ground.map(String) : [String(data.ground)];
   const scope = data.scope == null ? [] : Array.isArray(data.scope) ? data.scope.map(String) : [String(data.scope)];
@@ -32,6 +35,7 @@ export function parseTaskFile(slug: string, file: string, raw: string): ParseRes
     status: data.status as TaskStatus,
     scope,
     blocked,
+    complexity: data.complexity == null ? 'medium' : (data.complexity as TaskComplexity),
   };
   return { ok: true, task: { slug, file, fm, body: content } };
 }

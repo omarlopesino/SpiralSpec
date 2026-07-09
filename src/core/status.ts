@@ -1,4 +1,4 @@
-import type { BacklogEntry, SpecData, TaskData, TaskStatus } from './types.js';
+import type { BacklogEntry, SpecData, TaskComplexity, TaskData, TaskStatus } from './types.js';
 import { TASK_STATUSES } from './types.js';
 
 export type SpecPhase = 'definition' | 'planning' | 'ready' | 'implementation' | 'verification' | 'release' | 'complete';
@@ -21,7 +21,14 @@ export interface SpecStatusReport {
   phase: SpecPhase;
   counts: Record<TaskStatus, number>;
   backlog: BacklogEntry[] | null;
-  tasks: Array<{ slug: string; name: string; status: TaskStatus; blocked: string | null; ground: string[] | null }>;
+  tasks: Array<{
+    slug: string;
+    name: string;
+    status: TaskStatus;
+    blocked: string | null;
+    ground: string[] | null;
+    complexity: TaskComplexity;
+  }>;
   invalid: Array<{ file: string; error: string }>;
 }
 
@@ -41,6 +48,7 @@ export function buildStatusReport(spec: SpecData): SpecStatusReport {
       status: t.fm.status,
       blocked: t.fm.blocked,
       ground: t.fm.ground,
+      complexity: t.fm.complexity,
     })),
     invalid: spec.invalid.map((i) => ({ file: i.file, error: i.error })),
   };

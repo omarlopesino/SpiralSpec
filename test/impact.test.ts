@@ -6,7 +6,7 @@ function task(slug: string, over: Partial<TaskData['fm']> = {}): TaskData {
   return {
     slug,
     file: `tasks/${slug}.md`,
-    fm: { name: slug, goal: slug, ground: null, status: 'todo', scope: [`${slug}/**`], blocked: null, ...over },
+    fm: { name: slug, goal: slug, ground: null, status: 'todo', scope: [`${slug}/**`], blocked: null, complexity: 'medium', ...over },
     body: '',
   };
 }

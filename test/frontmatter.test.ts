@@ -32,8 +32,19 @@ describe('parseTaskFile', () => {
       status: 'backlog',
       scope: ['src/mapping/**'],
       blocked: null,
+      complexity: 'medium',
     });
     expect(r.task.body).toContain('# Context');
+  });
+
+  it('parses an explicit complexity', () => {
+    const r = parseTaskFile('t', 'tasks/t.md', GOOD.replace('blocked: null', 'blocked: null\ncomplexity: low'));
+    expect(r.ok && r.task.fm.complexity).toBe('low');
+  });
+
+  it('rejects an invalid complexity', () => {
+    const r = parseTaskFile('t', 'tasks/t.md', GOOD.replace('blocked: null', 'blocked: null\ncomplexity: huge'));
+    expect(r).toEqual({ ok: false, error: 'invalid complexity: huge' });
   });
 
   it('coerces a scalar ground into a one-element list', () => {

@@ -1,3 +1,6 @@
 specsRoot: specs
 agents:
   - claude
+models:
+  low: haiku
+  high: opus

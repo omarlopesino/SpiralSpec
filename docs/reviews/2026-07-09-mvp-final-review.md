@@ -38,11 +38,9 @@ dial (required at low, one question at medium, never blocking at high).
    implement.md's heuristic distinguishes pending-instruction entries from
    progress entries.
 
-2. **implement.md overstates the parallel-safety guarantee.**
-   `skills/implement.md` (step 4) says jointly-runnable tasks' scopes are
-   "guaranteed disjoint", but that guarantee only holds when `spiralspec
-   validate` is clean — and the skill's step 1 never runs validate. Fix: add
-   "run `spiralspec validate` first" to the steps, or soften the claim.
+2. ~~**implement.md overstates the parallel-safety guarantee.**~~ — resolved
+   with the D14 model-dispatch feature: step 4 now conditions parallel
+   dispatch on `spiralspec validate <spec>` printing OK.
 
 ### Code hardening
 

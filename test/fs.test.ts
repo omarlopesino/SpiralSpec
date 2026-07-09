@@ -8,11 +8,15 @@ const PROJECT = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'proje
 const SPECS = join(PROJECT, 'specs');
 
 describe('loadConfig', () => {
-  it('reads .spiralspec.yml', () => {
-    expect(loadConfig(PROJECT)).toEqual({ specsRoot: 'specs', agents: ['claude'] });
+  it('reads .spiralspec.yml including the models mapping', () => {
+    expect(loadConfig(PROJECT)).toEqual({
+      specsRoot: 'specs',
+      agents: ['claude'],
+      models: { low: 'haiku', high: 'opus' },
+    });
   });
   it('defaults when the file is absent', () => {
-    expect(loadConfig('/nonexistent')).toEqual({ specsRoot: 'specs', agents: [] });
+    expect(loadConfig('/nonexistent')).toEqual({ specsRoot: 'specs', agents: [], models: {} });
   });
 });
 

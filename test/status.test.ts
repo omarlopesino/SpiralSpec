@@ -6,7 +6,7 @@ function task(slug: string, status: TaskStatus): TaskData {
   return {
     slug,
     file: `tasks/${slug}.md`,
-    fm: { name: slug, goal: slug, ground: null, status, scope: [`${slug}/**`], blocked: null },
+    fm: { name: slug, goal: slug, ground: null, status, scope: [`${slug}/**`], blocked: null, complexity: 'medium' },
     body: '',
   };
 }
@@ -43,7 +43,14 @@ describe('buildStatusReport', () => {
     expect(r.counts.todo).toBe(1);
     expect(r.counts.done).toBe(1);
     expect(r.counts.backlog).toBe(0);
-    expect(r.tasks[0]).toEqual({ slug: 'a', name: 'a', status: 'todo', blocked: null, ground: null });
+    expect(r.tasks[0]).toEqual({
+      slug: 'a',
+      name: 'a',
+      status: 'todo',
+      blocked: null,
+      ground: null,
+      complexity: 'medium',
+    });
     expect(r.invalid).toEqual([{ file: 'tasks/bad.md', error: 'boom' }]);
   });
 });
