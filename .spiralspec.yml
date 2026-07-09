@@ -1,0 +1,7 @@
+specsRoot: specs
+agents:
+  - claude
+models:
+  low: haiku
+  medium: sonnet
+  high: opus
