@@ -1,8 +1,10 @@
 import { Command } from 'commander';
 import { execSync } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadConfig } from '../adapters/config.js';
 import { loadSpec } from '../adapters/fs.js';
+import { createSpec } from '../adapters/scaffold.js';
 import { validateSpec } from '../core/validate.js';
 import { buildStatusReport } from '../core/status.js';
 import { nextTasks } from '../core/next.js';
@@ -32,6 +34,24 @@ function emit(io: CliIO, json: boolean, data: unknown, human: () => void): void 
 
 export function buildProgram(io: CliIO): Command {
   const program = new Command('spiralspec').description('Agile Spec-Driven Development toolkit');
+
+  program
+    .command('new')
+    .argument('<slug>', 'spec slug (folder name)')
+    .option('--name <name>', 'human-readable spec name')
+    .description('Scaffold a new spec folder with empty artifacts')
+    .action((slug: string, opts: { name?: string }) => {
+      try {
+        const cfg = loadConfig(io.cwd);
+        const specsDir = resolve(io.cwd, cfg.specsRoot);
+        mkdirSync(specsDir, { recursive: true });
+        const created = createSpec(specsDir, slug, opts.name ?? slug);
+        for (const f of created) io.out(`created ${cfg.specsRoot}/${f}`);
+      } catch (e) {
+        io.out(`error: ${(e as Error).message}`);
+        process.exitCode = 1;
+      }
+    });
 
   program
     .command('validate')
