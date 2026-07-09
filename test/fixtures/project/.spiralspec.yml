@@ -1,0 +1,3 @@
+specsRoot: specs
+agents:
+  - claude
