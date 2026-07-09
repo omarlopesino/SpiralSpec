@@ -46,6 +46,12 @@ describe('cli', () => {
     expect(out.affected.sort()).toEqual(['field-map', 'migrate-users']);
   });
 
+  it('impact fails loud on a nonexistent task slug', async () => {
+    const out = await run(['impact', 'demo', 'ghost', '--files', 'db/schema.sql', '--json']);
+    expect(out.join('\n')).toContain('error: task not found: ghost');
+    expect(process.exitCode).toBe(1);
+  });
+
   it('fails cleanly on a missing spec', async () => {
     const out = await run(['status', 'ghost']);
     expect(out.join('\n')).toContain('spec not found: ghost');

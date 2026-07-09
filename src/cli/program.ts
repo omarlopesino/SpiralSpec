@@ -173,12 +173,21 @@ export function buildProgram(io: CliIO): Command {
     .action((slug: string, taskSlug: string, opts: { files?: string; json?: boolean }) => {
       const spec = getSpec(io, slug);
       if (!spec) return;
+      if (!spec.tasks.some((t) => t.slug === taskSlug) && !spec.invalid.some((i) => i.slug === taskSlug)) {
+        io.out(`error: task not found: ${taskSlug}`);
+        process.exitCode = 1;
+        return;
+      }
       let files: string[];
       if (opts.files !== undefined) {
         files = opts.files.split(',').map((f) => f.trim()).filter(Boolean);
       } else {
         try {
-          files = execSync('git diff --name-only HEAD', { cwd: io.cwd, encoding: 'utf8' })
+          files = execSync('git diff --name-only HEAD', {
+            cwd: io.cwd,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
+          })
             .split('\n')
             .filter(Boolean);
         } catch {

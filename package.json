@@ -9,6 +9,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "build": "tsc",
+    "prepack": "npm run build",
     "test": "vitest run",
     "dev": "tsx src/cli/index.ts"
   },

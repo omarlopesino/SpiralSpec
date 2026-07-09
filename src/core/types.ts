@@ -35,7 +35,7 @@ export interface SpecData {
   slug: string;
   dir: string;               // absolute path to the spec folder
   fm: SpecFrontmatter;
-  backlog: BacklogEntry[] | null;   // null = no backlog.md (or no parseable entries)
+  backlog: BacklogEntry[] | null;   // null = no backlog.md; [] = file present with no entries (both impose no constraints)
   tasks: TaskData[];
   invalid: InvalidTask[];
 }
