@@ -42,7 +42,13 @@ breakdown from scratch.
 7. Update `status/README.md`: rewrite `# Current state` and `# Next steps`
    (tell the user to review the tasks and flip approved ones
    `backlog → todo`; list unexpanded ledger entries as pending analysis).
-8. Present the plan: each task's goal, ground order, and scope. Ask for
+8. Dispatch a commit sub-agent (reuse the "## Commit sub-agent prompt
+   template" from `skills/implement.md`, mode (b) explicit scope, at the
+   `low` tier of the `models:` mapping) covering `backlog.md`,
+   `status/README.md`, and any `tasks/<slug>.md` files newly expanded this
+   session. Wait for it to finish before continuing; treat "nothing to
+   commit" as a normal outcome.
+9. Present the plan: each task's goal, ground order, and scope. Ask for
    feedback — deeper reshaping (criteria, context, deleting tasks) belongs to
    /spiral:refine.
 

@@ -28,6 +28,12 @@ The user manually verifies tasks in `verification` status (using each task's
    - If the user agrees the spec itself is wrong: update
      `acceptance-criteria.md` or `context.md` accordingly.
 5. Update `status/README.md`; suggest `/spiral:implement <spec>` for rework.
+6. Dispatch a commit sub-agent (reuse the "## Commit sub-agent prompt
+   template" from `skills/implement.md`, mode (b) explicit scope, at the
+   `low` tier of the `models:` mapping) covering, for whichever verdict path
+   was taken: the verified task's own file (`specs/<spec>/tasks/<slug>.md`),
+   `status/README.md`, and `status/release.md`. Wait for it to finish before
+   returning control; treat "nothing to commit" as a normal outcome.
 
 ## Rules
 

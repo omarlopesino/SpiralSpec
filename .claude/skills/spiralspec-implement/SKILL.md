@@ -83,14 +83,31 @@ Dispatch with exactly this structure (fill the placeholders):
 
 ## Commit sub-agent prompt template
 
-Dispatch with exactly this structure (fill the placeholders):
+Dispatch with exactly this structure (fill the placeholders). Two modes are
+supported for step 1, chosen by the dispatching skill:
 
-    You are committing files for a completed spec task. Your entire context is
-    the task file below; do not read other spec artifacts.
-    Project root: <absolute path>. Task file: <absolute path to tasks/<slug>.md>.
+- **(a) task-derived** — the dispatch is anchored to one task file, and scope
+  is read from its frontmatter. Used by this skill's own step 6. Opening line:
+  "You are committing files for a completed spec task. Your entire context is
+  the task file below; do not read other spec artifacts.
+  Project root: <absolute path>. Task file: <absolute path to
+  tasks/<slug>.md>."
+- **(b) explicit** — the dispatching skill supplies a literal list of
+  files/globs to stage directly; no task file is involved. Used by
+  `release.md` step 3 and by the metadata-commit steps in `verify.md`,
+  `refine.md`, and `plan.md`. Opening line: "You are committing files for a
+  spec. Your entire context is the file list below; do not read other spec
+  artifacts. Project root: <absolute path>. Files/globs to stage:
+  <literal list>."
+
+Mode (b) dispatches skip step 7 entirely — their whole scope already is the
+thing being committed (still subject to step 5's atomic-split rule if the
+scope spans more than one logical change).
 
     Contract — follow in order:
-    1. Read the task file to extract the `scope:` globs from the frontmatter.
+    1. (a) Read the task file to extract the `scope:` globs from the
+       frontmatter. / (b) Use the literal files/globs supplied above as the
+       scope — no task file to read.
     2. Stage exactly the files matching those globs that have been
        created/modified in this working tree. Never use `git add -A`, `git add
        .`, or anything that stages files outside the task's scope.
@@ -116,8 +133,9 @@ Dispatch with exactly this structure (fill the placeholders):
        (hash + one-line message each), which commit(s) for metadata (if any),
        or "nothing to commit" for either independently.
 
-    Gap rule: if you cannot determine the task scope or commit convention,
-    report what information is missing and stop.
+    Gap rule: if you cannot determine the scope (task frontmatter for mode
+    (a), or the supplied list for mode (b)) or commit convention, report what
+    information is missing and stop.
 
 ## Rules
 
