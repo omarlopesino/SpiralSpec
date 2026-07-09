@@ -21,9 +21,11 @@ implementation runs.
   ground, scope, body sections. Delete them entirely (remove the file AND its
   ledger entry) when the user discards the work.
 - Tasks in `inprogress` — editable too, but the change IS a new iteration:
-  append an `# Iterations` entry describing what changed and why (goal, scope,
-  or task-list delta). The implementing agent re-reads the task file before
-  acting, so the iteration is picked up mid-flight; never edit silently.
+  append an `# Iterations` entry prefixed with `(refined — pending)` describing
+  what changed and why (goal, scope, or task-list delta). The implementing
+  agent re-reads the task file before acting, so the iteration is picked up
+  mid-flight; it will drop the pending marker and append its own progress entry
+  when it acts on the instruction. Never edit silently.
 - `acceptance-criteria.md` and `context.md` — propose concrete edits when the
   feedback reveals the spec itself was wrong or incomplete; apply them only
   with the user's explicit consent (human-owned artifacts).

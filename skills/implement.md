@@ -80,7 +80,8 @@ Dispatch with exactly this structure (fill the placeholders):
   user may have edited them mid-flight. Never trust conversation memory over
   the file.
 - A task sitting in `inprogress` whose `# Iterations` has no entry for the
-  current work is a dead sub-agent: re-dispatch it.
+  current work — or only `(refined — pending)` entries, which are pending
+  instructions, not progress — is a dead sub-agent: re-dispatch it.
 - Never halt the sprint for one blocked task; record it in
   `status/README.md` `# Blocked` (reason + proposed solutions) and continue
   with other runnable tasks.
