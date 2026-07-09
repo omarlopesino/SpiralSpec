@@ -1,0 +1,36 @@
+---
+id: verify
+title: Verify SpiralSpec tasks
+description: Process the user's verification verdicts; on feedback, bound the blast radius and update only affected artifacts.
+args: <spec-slug> [task-slug]
+---
+
+# SpiralSpec — Verify
+
+The user manually verifies tasks in `verification` status (using each task's
+`# Testing` section). You process their verdicts.
+
+## Steps
+
+1. Run `spiralspec status <spec> --json`. Ask which task(s) the user verified
+   if not stated.
+2. **Pass** → edit the task frontmatter `verification → release`; update
+   `status/README.md` and make sure `status/release.md` covers the task's
+   release steps.
+3. **Feedback / errors** → bound the blast radius first:
+   `spiralspec impact <spec> <task> --json` (add `--files a,b` when the
+   changed files are known; the default uses git diff). Read ONLY the affected
+   set — never re-read every task.
+4. Apply updates within that set:
+   - The task itself: append the feedback to `# Iterations`, revise `# Tasks`,
+     set status back to `todo` for rework.
+   - Dependent or ground tasks whose assumptions the feedback breaks.
+   - If the user agrees the spec itself is wrong: update
+     `acceptance-criteria.md` or `context.md` accordingly.
+5. Update `status/README.md`; suggest `/spiral:implement <spec>` for rework.
+
+## Rules
+
+- Never set `done` here — `done` requires deployment (the release skill).
+- If the user's verdict contradicts the file state (e.g. "done" but the task
+  is `backlog`), ask — don't guess.
