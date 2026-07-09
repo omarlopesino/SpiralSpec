@@ -45,6 +45,7 @@ Recorded decisions from the brainstorming session:
 | D11 | Incremental planning ledger | Plan drafts `backlog.md` (one line per proposed task) and presents it before expanding entries into full task files; the verification stop scales with the autonomy dial (required at low, one offered question at medium, skipped-and-logged at high) | Enables partial planning: the user can approve/implement one task now and continue analysis later — the agent resumes from the ledger instead of re-inferring the whole breakdown. |
 | D12 | Full-circle refinement | A sixth verb, `/spiral:refine`, processes post-plan feedback: reshapes the ledger, edits/deletes not-started tasks, edits `inprogress` tasks (recorded as a new `# Iterations` entry), and — with user consent — acceptance-criteria.md and context.md | Plans and specs must be revisable between planning and implementation, not just at verification. Tasks in `verification`+ still go through verify's impact-bounded flow. |
 | D13 | Checks are offered, never required | No preview-and-confirm gate before writing artifacts: files + git are the review surface, and refine makes every write cheap to revise. Blocking confirmation exists only where irreversibility lives — deleting tasks and editing human-owned files (consent rules in refine). All other verification stops scale with the autonomy dial. | Mandatory double-checks are the ceremony this tool exists to escape; a user who wants a preview can simply ask for one. |
+| D14 | Complexity-aware model dispatch | Tasks carry an abstract `complexity: low\|medium\|high` hint (assigned at plan time, default medium); an optional `models:` mapping in `.spiralspec.yml` translates tiers to platform model names at implement-dispatch time. No mapping (the default) = every sub-agent inherits the session model. Blocked/failing work escalates one tier before surfacing. | Cheap models handle mechanical tasks; capable ones handle judgment — but model names are platform-specific and belong in user config, never in agent-agnostic artifacts or silent defaults. |
 
 ## 4. Architecture
 
@@ -161,6 +162,8 @@ scope:                          # file claim: globs this task may create/modify 
                                 #   excluding tasks overlapping any inprogress scope.
 blocked: null                   # or a one-line reason. Set when the agent stops autonomously
                                 # or a gap is postponed. Excluded from `next` until cleared.
+complexity: medium              # low | medium | high — model-dispatch hint (D14). Abstract tier,
+                                # never a model name; .spiralspec.yml maps tiers to models.
 ---
 ```
 

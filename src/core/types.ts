@@ -1,6 +1,9 @@
 export type TaskStatus = 'backlog' | 'todo' | 'inprogress' | 'verification' | 'release' | 'done';
 export const TASK_STATUSES: readonly TaskStatus[] = ['backlog', 'todo', 'inprogress', 'verification', 'release', 'done'];
 
+export type TaskComplexity = 'low' | 'medium' | 'high';
+export const TASK_COMPLEXITIES: readonly TaskComplexity[] = ['low', 'medium', 'high'];
+
 export interface TaskFrontmatter {
   name: string;
   goal: string;
@@ -8,6 +11,7 @@ export interface TaskFrontmatter {
   status: TaskStatus;
   scope: string[];           // file-claim globs
   blocked: string | null;
+  complexity: TaskComplexity; // dispatch hint for model selection; defaults to 'medium'
 }
 
 export interface TaskData {

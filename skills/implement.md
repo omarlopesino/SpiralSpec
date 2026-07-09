@@ -21,9 +21,11 @@ context.
    then stop.
 3. Otherwise choose from `runnable`: prefer resuming `inprogress` tasks, then
    base tasks (`ground: null`), then incremental ones.
-4. Dispatch each chosen task to a sub-agent with the prompt template below —
-   in parallel when the platform supports it and the tasks appear together in
-   `runnable` (their scopes are guaranteed disjoint); otherwise one at a time.
+4. Dispatch each chosen task to a sub-agent with the prompt template below,
+   selecting the model per the rules in "Model selection". Dispatch in
+   parallel when the platform supports it, the tasks appear together in
+   `runnable`, and `spiralspec validate <spec>` prints OK (validation is what
+   guarantees their scopes are disjoint); otherwise one at a time.
 5. After each sub-agent finishes: confirm the task file reached
    `status: verification`; then update `status/README.md` (`# Current state`,
    `# Next steps`, a `# Completed tasks` entry: how it was done, how to verify
@@ -33,6 +35,17 @@ context.
 6. Re-run `spiralspec next`. At autonomy **high**: continue until `runnable`
    is empty. At **low/medium**: report and ask before the next batch.
 7. When everything is excluded, report why per task and what the user must do.
+
+## Model selection
+
+Each task's `complexity` frontmatter (low | medium | high; absent = medium)
+is a dispatch hint. If `.spiralspec.yml` defines a `models:` mapping (e.g.
+`models: { low: haiku, medium: sonnet, high: opus }`), dispatch the sub-agent
+with the model mapped from the task's complexity. No mapping, no entry for
+that tier, or no model parameter on the platform's sub-agent tool → inherit
+the session model. The hint is never a contract: if a sub-agent reports it is
+blocked or produces failing work and a higher tier exists in the mapping,
+re-dispatch once at the higher tier before recording the task as blocked.
 
 ## Sub-agent prompt template
 

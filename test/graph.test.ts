@@ -6,7 +6,7 @@ function task(slug: string, ground: string[] | null): TaskData {
   return {
     slug,
     file: `tasks/${slug}.md`,
-    fm: { name: slug, goal: slug, ground, status: 'backlog', scope: [`${slug}/**`], blocked: null },
+    fm: { name: slug, goal: slug, ground, status: 'backlog', scope: [`${slug}/**`], blocked: null, complexity: 'medium' },
     body: '',
   };
 }

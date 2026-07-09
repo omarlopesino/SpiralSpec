@@ -72,6 +72,10 @@ the choice is clearly logical or simple; otherwise create the task with
   the other; `spiralspec validate` enforces this.
 - Base tasks (`ground: null`) first; incremental tasks layer on them.
 - Right-size the goal: bigger than one phrase, smaller than the whole spec.
+- Assign `complexity` as a dispatch hint: **low** = 1-2 files, fully
+  specified, mechanical; **medium** = multi-file work with integration
+  concerns; **high** = design judgment, architecture, or broad codebase
+  understanding. When in doubt, medium.
 
 ## Task template
 
@@ -84,6 +88,7 @@ the choice is clearly logical or simple; otherwise create the task with
     scope:
       - <glob this task may create/modify>
     blocked: null
+    complexity: medium      # low | medium | high — model-dispatch hint
     ---
 
     # Context

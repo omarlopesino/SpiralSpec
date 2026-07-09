@@ -153,6 +153,7 @@ export function buildProgram(io: CliIO): Command {
           status: t.fm.status,
           ground: t.fm.ground,
           scope: t.fm.scope,
+          complexity: t.fm.complexity,
         })),
         excluded: result.excluded,
       };
