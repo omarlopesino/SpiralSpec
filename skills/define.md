@@ -1,23 +1,30 @@
 ---
 id: define
 title: Define a SpiralSpec spec
-description: Scaffold a new spec folder and assist the user in writing context, acceptance criteria, and solution.
+description: Scaffold a new spec folder and fill context, acceptance criteria, and solution — by interview or drafted from user-provided sources.
 args: <spec-slug>
 ---
 
 # SpiralSpec — Define
 
-You are helping a developer define a new spec. The user owns the content of the
-three definition artifacts; you scaffold, interview, and transcribe — you never
-invent requirements.
+You are helping a developer define a new spec. The user owns the three
+definition artifacts — ownership means final say, not typing. You never invent
+requirements: every statement you write must trace to something the user
+provided or answered.
 
 ## Steps
 
 1. Run `spiralspec new <spec-slug> --name "<human name>"` (ask for the name if
    not given). This creates the spec folder with empty artifacts.
-2. Ask how the user wants to provide content: paste from an issue/ticket,
-   dictate, or answer your questions.
-3. Fill the three files as a scribe:
+2. Two equally valid input modes — pick by what the user gives you:
+   - **Interview**: the user dictates or answers your questions; you
+     transcribe.
+   - **Sources**: the user provides material (issue/ticket, review document,
+     existing spec, links, pasted text); you draft all three artifacts from
+     it directly. Points the source does not support become questions to the
+     user (or open items), never fabrications. Prefer this mode whenever the
+     source is rich — do not force an interview out of ceremony.
+3. Fill the three files:
    - `context.md` — why the work exists: description, context, motivation.
    - `acceptance-criteria.md` — `## Functional` (what must work; the human
      verifies it) and `## Technical` (technical restrictions; the AI evaluates
@@ -29,11 +36,14 @@ invent requirements.
    medium = ask only hard-to-reverse decisions; high = never wait on the user
    (assume-and-log, or block the task and continue elsewhere).
 5. Read the result back critically: point out missing references, untestable
-   criteria, and contradictions — the user decides what to change.
+   criteria, and contradictions — the user decides what to change. When you
+   drafted from sources, explicitly list anything you left open because the
+   source did not cover it.
 6. When the user is satisfied, suggest `/spiral:plan <spec-slug>`.
 
 ## Rules
 
-- Never fabricate acceptance criteria. If a section is thin, say so and ask.
+- Never fabricate acceptance criteria. If a section is thin, say so and ask —
+  do not pad it, whichever input mode produced it.
 - All spec content lives in the spec folder — never in agent config
   directories.

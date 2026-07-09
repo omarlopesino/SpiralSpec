@@ -46,6 +46,7 @@ Recorded decisions from the brainstorming session:
 | D12 | Full-circle refinement | A sixth verb, `/spiral:refine`, processes post-plan feedback: reshapes the ledger, edits/deletes not-started tasks, edits `inprogress` tasks (recorded as a new `# Iterations` entry), and — with user consent — acceptance-criteria.md and context.md | Plans and specs must be revisable between planning and implementation, not just at verification. Tasks in `verification`+ still go through verify's impact-bounded flow. |
 | D13 | Checks are offered, never required | No preview-and-confirm gate before writing artifacts: files + git are the review surface, and refine makes every write cheap to revise. Blocking confirmation exists only where irreversibility lives — deleting tasks and editing human-owned files (consent rules in refine). All other verification stops scale with the autonomy dial. | Mandatory double-checks are the ceremony this tool exists to escape; a user who wants a preview can simply ask for one. |
 | D14 | Complexity-aware model dispatch | Tasks carry an abstract `complexity: low\|medium\|high` hint (assigned at plan time, default medium); an optional `models:` mapping in `.spiralspec.yml` translates tiers to platform model names at implement-dispatch time. No mapping (the default) = every sub-agent inherits the session model. Blocked/failing work escalates one tier before surfacing. | Cheap models handle mechanical tasks; capable ones handle judgment — but model names are platform-specific and belong in user config, never in agent-agnostic artifacts or silent defaults. |
+| D15 | Definition drafting from sources | The definition artifacts (context, acceptance criteria, solution) may be written by the user directly OR drafted entirely by the agent from user-provided sources (issue, review doc, existing spec). Both are first-class. The invariant is ownership, not authorship: nothing in a drafted artifact may lack support in the source — unsupported points become questions, and the user reviews/edits the result. | With rich source material the agent drafts better and faster than an interview; forcing manual authoring would be ceremony (D13). What the human uniquely provides is judgment, not typing. |
 
 ## 4. Architecture
 
@@ -119,7 +120,9 @@ created: 2026-07-08
 
 Spec-level status is **derived, never stored**: the CLI computes the phase from task states (all backlog → planning; any inprogress → implementation; all done → complete; …). Stored aggregates go stale; derived ones cannot.
 
-### The three human artifacts
+### The three human-owned artifacts
+
+Human-owned means the user has final say and edits freely — not necessarily that the user typed them: the define skill may draft all three from user-provided sources (D15).
 
 - `context.md` — description, context, motivation. Explains why the work is needed.
 - `acceptance-criteria.md` — two sections. **Functional criteria**: what must work for the spec to be complete (verified by the human). **Technical criteria**: technical restrictions (evaluated by the AI).
@@ -224,7 +227,7 @@ graph LR
 
 | Skill | Phases covered | Behavior |
 |---|---|---|
-| `/spiral:define <name>` | Definition | Runs `spiralspec new`; assists the user (interview, paste from issue, draft prose) in filling context.md, acceptance-criteria.md, solution.md. The user owns the content. |
+| `/spiral:define <name>` | Definition | Runs `spiralspec new`; fills context.md, acceptance-criteria.md, solution.md by interview OR by drafting all three from user-provided sources (issue, review doc, spec) — both first-class (D15). Nothing invented: unsupported points become questions. The user owns and edits the result. |
 | `/spiral:plan <spec>` | Plan, Plan review | Reads the three human artifacts; challenges solution.md; asks gap questions per the dial; drafts/updates the `backlog.md` ledger for user verification (D11); expands verified entries — lazily, on demand — into `tasks/*.md` (all `backlog`) with self-sufficient `# Context`, disjoint `scope`s, and correct `ground`; updates status/README next steps. Re-runs resume from the ledger, never re-infer. |
 | `/spiral:refine <spec>` | Plan review (full circle; D12) | Processes feedback that reshapes the plan or the spec itself: ledger additions/edits/deletions; edit or delete not-started tasks (including scope — claims are re-plannable at will); edit `inprogress` tasks as a recorded new iteration; propose consented edits to acceptance-criteria.md/context.md/solution.md, presenting which ledger entries and tasks each change invalidates. Always ends with `spiralspec validate`. Statuses never change here; `verification`+ tasks belong to verify. |
 | `/spiral:implement <spec> [task]` | Implementation | The "continue" verb. With a task argument: run that task, or explain precisely why it is not runnable (blocked by X / scope conflict with inprogress Y / still in backlog). Without: pick from `spiralspec next`, preferring inprogress resumes, then base, then incremental; at `autonomy: high`, continue until nothing is runnable. |
