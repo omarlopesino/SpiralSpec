@@ -3,13 +3,13 @@
   "files": {
     ".claude/skills/spiralspec-define/SKILL.md": "538e3df7ba5db9455923773f4e5e2d24ef5986321e84da7e4b49fa61a588a9d1",
     ".claude/commands/spiral/define.md": "e3effdac1ef0d09c998f3be36dc5fc44b40be21f71c3e28cad7fba94ba5569a5",
-    ".claude/skills/spiralspec-implement/SKILL.md": "66e498a79d2effb60f76fbfaf0cfd48f3519c04ba7b4a7a51058d840aed01dfa",
+    ".claude/skills/spiralspec-implement/SKILL.md": "519fab19cf194028a5b06cb23815f8720681a7d49aa92ba522207f550a03f169",
     ".claude/commands/spiral/implement.md": "52fe0482c792d05ddc7e5172a975dd41f564c1ef3fdbf79ea9481ae745bf9cae",
     ".claude/skills/spiralspec-plan/SKILL.md": "9397bdb7fa5604b17ed4c1ccdb9033c71880ed850959fab77bc800e40b5d3c3a",
     ".claude/commands/spiral/plan.md": "6c97ca7c535b546a9080e30cadf11b8a0c92ca4284056fa8732eb582a80b45ad",
     ".claude/skills/spiralspec-refine/SKILL.md": "d4476c7f9930082cd7753c336c77a8221d4976c9652874222fc666012ab95a79",
     ".claude/commands/spiral/refine.md": "aa1e84af3bafc982e0637fd89f9767639da98f45406957077b4276fc151ef9ca",
-    ".claude/skills/spiralspec-release/SKILL.md": "004b5bcf26873ad872f76539beae71c4d3b50649be7cda221f71e322229e845c",
+    ".claude/skills/spiralspec-release/SKILL.md": "200bd7e02389cd8fd5eb9e034a4e7686ea99a5aac2f9e980d6fdc16b1518f4a1",
     ".claude/commands/spiral/release.md": "aaeaa345e0f6359fd3dbb5b1189891077e9923b9a474fc6c7ca6cb22fbe0b89d",
     ".claude/skills/spiralspec-verify/SKILL.md": "d48d593d68a4535bb07f0b086d241d878d4c3b0bd7ff980693d5c1dff8ba822d",
     ".claude/commands/spiral/verify.md": "b60db08a4cde711534ea24b63c2b8657bdeae80f6b70aed4821b74e47380ee96"

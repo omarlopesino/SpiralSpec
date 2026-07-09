@@ -34,7 +34,11 @@ context.
    for a reader who has not seen this conversation.
 6. Dispatch a commit sub-agent using the "Commit sub-agent prompt template"
    below, selecting the `low` model tier from the `models:` mapping (not the
-   task's own `complexity` tier). Wait for it to finish before continuing.
+   task's own `complexity` tier). The dispatch covers both the task's
+   implementation files and the spec's own metadata (`status/README.md`,
+   `backlog.md`, and this task's file) — which will be committed as separate
+   commits (status bookkeeping is a logically distinct change). Wait for it to
+   finish before continuing.
 7. Re-run `spiralspec next`. At autonomy **high**: continue until `runnable`
    is empty. At **low/medium**: report and ask before the next batch.
 8. When everything is excluded, report why per task and what the user must do.
@@ -100,8 +104,17 @@ Dispatch with exactly this structure (fill the placeholders):
        instead of one. Each commit should be small and focused.
     6. Commit the staged changes (or each atomic batch) with `git commit`.
        Never force-push, amend, rebase, or rewrite history.
-    7. Return a short summary: which commit(s) were created (hash + one-line
-       message each), or "nothing to commit".
+    7. After committing implementation files, commit spec metadata as separate
+       commit(s): derive the spec folder from the task file's path (one
+       directory up from `tasks/`); for each of `status/README.md`,
+       `backlog.md`, and the task's own file in that spec folder, check for
+       uncommitted changes. If any of these files have changes, stage and
+       commit them together as a single metadata commit. Skip files with no
+       changes. Use a commit message like "docs: update spec metadata" and
+       include an explanation of what changed.
+    8. Return a short summary: which commit(s) were created for implementation
+       (hash + one-line message each), which commit(s) for metadata (if any),
+       or "nothing to commit" for either independently.
 
     Gap rule: if you cannot determine the task scope or commit convention,
     report what information is missing and stop.

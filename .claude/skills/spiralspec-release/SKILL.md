@@ -17,8 +17,12 @@ Deployment is performed by the user. You support it and record completion.
    task's frontmatter `release → done`; record the deployment details in
    `status/release.md`; update `status/README.md`. Ask the user whether the
    report should include their completion details before adding them.
-3. When every task is `done`, announce the spec complete. The folder remains
-   in place as documentation.
+3. When every task is `done`, dispatch a commit sub-agent (reuse the
+   `## Commit sub-agent prompt template` from `skills/implement.md`, but
+   scoped explicitly to `specs/<spec>/**` instead of task scope globs) to
+   commit any remaining spec-folder changes as a wrap-up commit. If there are
+   no uncommitted changes, skip this and proceed directly to announcement. Then
+   announce the spec complete. The folder remains in place as documentation.
 
 ## Rules
 
