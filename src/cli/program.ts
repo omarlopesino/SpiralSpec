@@ -1,7 +1,8 @@
 import { Command } from 'commander';
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join, resolve } from 'node:path';
 import { loadConfig, saveConfig } from '../adapters/config.js';
 import { loadSpec } from '../adapters/fs.js';
 import { createSpec } from '../adapters/scaffold.js';
@@ -37,6 +38,11 @@ function emit(io: CliIO, json: boolean, data: unknown, human: () => void): void 
 export function buildProgram(io: CliIO): Command {
   const program = new Command('spiralspec').description('Agile Spec-Driven Development toolkit');
 
+  // Read version from package.json
+  const packagePath = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json');
+  const packageJson = JSON.parse(readFileSync(packagePath, 'utf8')) as { version: string };
+  program.version(packageJson.version);
+
   program
     .command('new')
     .argument('<slug>', 'spec slug (folder name)')
@@ -63,13 +69,23 @@ export function buildProgram(io: CliIO): Command {
 
   program
     .command('init')
-    .option('--agent <list>', 'comma-separated agents', ADAPTER_IDS.join(','))
+    .option('--agent <list>', 'comma-separated agents')
     .option('--force', 'overwrite hand-edited managed files')
     .description('Initialize SpiralSpec: config, specs root, and skill pack')
-    .action((opts: { agent: string; force?: boolean }) => {
+    .action((opts: { agent?: string; force?: boolean }) => {
       try {
-        const agents = opts.agent.split(',').map((a) => a.trim()).filter(Boolean);
         let cfg = loadConfig(io.cwd);
+        let agents: string[];
+        if (opts.agent !== undefined) {
+          // Flag explicitly provided: parse it
+          agents = opts.agent.split(',').map((a) => a.trim()).filter(Boolean);
+        } else if (cfg.agents.length > 0) {
+          // Flag omitted and existing agents: preserve them
+          agents = cfg.agents;
+        } else {
+          // Flag omitted and no existing agents (first init): use defaults
+          agents = ADAPTER_IDS;
+        }
         cfg = { ...cfg, agents };
         if (!existsSync(resolve(io.cwd, '.spiralspec.yml'))) io.out('created .spiralspec.yml');
         saveConfig(io.cwd, cfg);
@@ -125,6 +141,7 @@ export function buildProgram(io: CliIO): Command {
       const spec = getSpec(io, slug);
       if (!spec) return;
       const report = buildStatusReport(spec);
+      const issues = validateSpec(spec);
       emit(io, opts.json === true, report, () => {
         io.out(`${report.spec} — ${report.name} [phase: ${report.phase}, autonomy: ${report.autonomy}]`);
         for (const t of report.tasks) {
@@ -134,6 +151,9 @@ export function buildProgram(io: CliIO): Command {
           if (!b.expanded) io.out(`  unexpanded   ${b.slug} — ${b.goal}`);
         }
         for (const i of report.invalid) io.out(`  invalid      ${i.file}: ${i.error}`);
+        if (issues.length > 0) {
+          io.out(`warning: validate reports ${issues.length} issue(s) — parallel dispatch is not safe until fixed`);
+        }
       });
     });
 
@@ -146,6 +166,7 @@ export function buildProgram(io: CliIO): Command {
       const spec = getSpec(io, slug);
       if (!spec) return;
       const result = nextTasks(spec);
+      const issues = validateSpec(spec);
       const data = {
         runnable: result.runnable.map((t) => ({
           slug: t.slug,
@@ -161,6 +182,9 @@ export function buildProgram(io: CliIO): Command {
         for (const t of data.runnable) io.out(`runnable: ${t.slug} (${t.status})`);
         for (const e of data.excluded) io.out(`excluded: ${e.slug} — ${e.reason}`);
         if (data.runnable.length === 0 && data.excluded.length === 0) io.out('nothing to run');
+        if (issues.length > 0) {
+          io.out(`warning: validate reports ${issues.length} issue(s) — parallel dispatch is not safe until fixed`);
+        }
       });
     });
 
